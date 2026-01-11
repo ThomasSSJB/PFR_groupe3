@@ -2,9 +2,14 @@
 #define OBJET_H
 
 #include "../include/image.h"
+#include "../include/forme.h"
 
 typedef struct Objet * Objet;
 
-Objet remplir_forme(void);
+/* Initialise un objet (allocation mémoire) */
+Objet init_objet(Couleur couleur, Forme forme);
+
+/* à coder */
+Objet remplir_objet(void);
 
 #endif

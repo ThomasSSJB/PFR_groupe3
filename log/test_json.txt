@@ -1,0 +1,18 @@
+seuil_forme   = 15
+seuil_couleur = 20
+Langues disponibles :
+1. Français (fr)
+2. Anglais (en)
+3. Espagnol (es)
+Choisissez une langue (1-3) : 3
+Vous avez choisi : es
+¡Hola!
+Commandes pour avancer (es) :
+- avanza
+- ve recto
+- izquierda
+- gira a la izquierda
+- derecha
+- gira a la derecha
+- parar
+- detener

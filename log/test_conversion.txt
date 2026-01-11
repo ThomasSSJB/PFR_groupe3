@@ -1,0 +1,19 @@
+===== TESTS DE CONVERSION =====
+
+Test 1: Décimal vers Binaire
+-----------------------------
+10 en binaire: 1010
+255 en binaire: 11111111
+42 en binaire: 101010
+
+Test 2: Binaire vers Décimal
+-----------------------------
+1010 en décimal: 10
+11111111 en décimal: 255
+101010 en décimal: 42
+
+Test 3: Vérification (Décimal -> Binaire -> Décimal)
+-----------------------------------------------------
+15 -> 1111 -> 15 [OK]
+64 -> 1000000 -> 64 [OK]
+100 -> 1100100 -> 100 [OK]

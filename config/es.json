@@ -1,14 +1,15 @@
 {
     "messages": {
-        "demande_commande": "¿Qué quieres que haga el robot?",
-        "erreur_commande": "No entendí la orden.",
-        "confirmation": "Entendido."
+        "texto_bienvenida": "¡Hola!",
+        "pedir_comando": "¿Qué quieres que haga el robot?",
+        "error_comando": "No entendí la orden.",
+        "confirmacion": "Entendido."
     },
 
-    "commandes": {
-        "avance": ["avanza", "ve recto"],
-        "gauche": ["izquierda", "gira a la izquierda"],
-        "droite": ["derecha", "gira a la derecha"],
-        "stop": ["para", "detener"]
+    "comandos": {
+        "avanzar": ["avanza", "ve recto"],
+        "izquierda": ["izquierda", "gira a la izquierda"],
+        "derecha": ["derecha", "gira a la derecha"],
+        "parar": ["para", "detener"]
     }
 }

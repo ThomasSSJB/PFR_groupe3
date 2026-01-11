@@ -1,0 +1,22 @@
+===== Affichage de l'image par pixels =====
+(100, 22, 247) (150, 68, 123) 
+(200, 156, 45) (60, 98, 2) 
+
+===== Affichage de l'image par matrices =====
+
+--- Matrice Rouge ---
+100 150 
+200 60 
+
+--- Matrice Bleue ---
+22 68 
+156 98 
+
+--- Matrice Verte ---
+247 123 
+45 2 
+
+(Test de la mise en niveau de gris avec le nombre de niveaux à 8)
+===== Affichage de l'image après la mise en niveaux de gris =====
+(3, 0, 7) (4, 2, 3) 
+(6, 4, 1) (1, 3, 0) 

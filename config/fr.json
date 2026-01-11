@@ -1,5 +1,6 @@
 {
     "messages": {
+        "texte_bienvenue": "Bonjour !",
         "demande_commande": "Que veux-tu que le robot fasse ?",
         "erreur_commande": "Je n’ai pas compris la commande.",
         "confirmation": "D’accord."

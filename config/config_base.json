@@ -1,5 +1,6 @@
 {
-    "langue": "fr", "en", "es",
+    "langue": ["fr", "en", "es"],
+
 
    
     "image_detection": {

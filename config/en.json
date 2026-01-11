@@ -1,14 +1,15 @@
 {
     "messages": {
-        "demande_commande": "What do you want the robot to do?",
-        "erreur_commande": "I didn't understand the command.",
+        "welcome_text": "Hello!",
+        "ask_command": "What do you want the robot to do?",
+        "error_command": "I didn't understand the command.",
         "confirmation": "Understood."
     },
 
-    "commandes": {
-        "avance": ["go forward", "move forward", "straight ahead"],
-        "gauche": ["left", "turn left"],
-        "droite": ["right", "turn right"],
+    "commands": {
+        "forward": ["go forward", "move forward", "straight ahead"],
+        "left": ["left", "turn left"],
+        "right": ["right", "turn right"],
         "stop": ["stop", "halt"]
     }
 }

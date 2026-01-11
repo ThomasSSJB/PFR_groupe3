@@ -1,0 +1,13 @@
+===== Quantification d'un pixel avec le seuil à 2 =====
+Pixel (255, 128, 64) ---> 57
+
+===== Quantification d'un pixel avec le seuil à 3 =====
+Pixel (255, 128, 64) ---> 482
+
+===== Affichage de l'image par pixels =====
+(100, 22, 247) (150, 68, 123) 
+(200, 156, 45) (60, 98, 2) 
+
+==== Affichage de la matrice quantifiée ====
+19 37 
+56 4 
