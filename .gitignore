@@ -11,3 +11,4 @@ python/rep.mp3
 
 # macOS
 .DS_Store
+bin/*.out
