@@ -1,15 +1,32 @@
 {
+    "general_parameters": {
+        "language_name": "English"
+    },
     "messages": {
         "welcome_text": "Hello!",
+        "prefix": "[TRACE]",
+        "confirmation": "Understood.",
         "ask_command": "What do you want the robot to do?",
         "error_command": "I didn't understand the command.",
-        "confirmation": "Understood."
+        
+        "advance": "advances",
+        "retreat": "retreats",
+        "turn_right": "turns right",
+        "turn_left": "turns left",
+        "go_to": "moves to absolute position",
+        
+        "distance_unit": "meters",
+        "angle_unit": "degrees",
+        
+        "stop_trace": "stops drawing (penup)",
+        "start_trace": "starts drawing (pendown)"
     },
 
     "commands": {
-        "forward": ["go forward", "move forward", "straight ahead"],
+        "advance": ["go forward", "move forward"],
         "left": ["left", "turn left"],
         "right": ["right", "turn right"],
         "stop": ["stop", "halt"]
+        
     }
 }

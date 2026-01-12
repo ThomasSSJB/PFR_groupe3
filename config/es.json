@@ -1,11 +1,26 @@
 {
-    "messages": {
+    "parámetros_generales": {
+        "nombre_idioma": "Español"
+    },
+    "mensajes": {
         "texto_bienvenida": "¡Hola!",
+        "prefijo": "[TRAZA]",
+        "confirmación": "Entendido.",
         "pedir_comando": "¿Qué quieres que haga el robot?",
         "error_comando": "No entendí la orden.",
-        "confirmacion": "Entendido."
+        
+        "avanzar": "avanza",
+        "retroceder": "retrocede",
+        "girar_derecha": "gira a la derecha",
+        "girar_izquierda": "gira a la izquierda",
+        "ir_a": "se desplaza a la posición absoluta",
+        
+        "unidad_distancia": "metros",
+        "unidad_ángulo": "grados",
+        
+        "detener_trazo": "deja de dibujar (penup)",
+        "iniciar_trazo": "comienza a dibujar (pendown)"
     },
-
     "comandos": {
         "avanzar": ["avanza", "ve recto"],
         "izquierda": ["izquierda", "gira a la izquierda"],

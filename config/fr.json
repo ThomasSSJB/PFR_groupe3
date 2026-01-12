@@ -1,15 +1,30 @@
 {
+    "paramètres_généraux": {
+        "nom_langue": "Français"
+    },
     "messages": {
         "texte_bienvenue": "Bonjour !",
-        "demande_commande": "Que veux-tu que le robot fasse ?",
+        "préfixe": "[TRACE]",
+        "confirmation": "D’accord.",
+        "demander_commande": "Que veux-tu que le robot fasse ?",
         "erreur_commande": "Je n’ai pas compris la commande.",
-        "confirmation": "D’accord."
+        
+        "avancer": "avance",
+        "reculer": "recule",
+        "tourner_droite": "tourne à droite",
+        "tourner_gauche": "tourne à gauche",
+        "aller_à": "se déplace à la position absolue",
+        
+        "unité_distance": "mètres",
+        "unité_angle": "degrés",
+        
+        "arrêter_tracé": "arrête de tracer (penup)",
+        "commencer_tracé": "commence à tracer (pendown)"
     },
-
     "commandes": {
-        "avance": ["avance", "va tout droit", "marche"],
+        "avancer": ["avance", "va tout droit"],
         "gauche": ["gauche", "tourne à gauche"],
         "droite": ["droite", "tourne à droite"],
-        "stop": ["stop", "arrête", "halt"]
+        "arrêter": ["stop", "arrête"]
     }
 }
