@@ -19,14 +19,21 @@
         "angle_unit": "degrees",
         
         "stop_trace": "stops drawing (penup)",
-        "start_trace": "starts drawing (pendown)"
+        "start_trace": "starts drawing (pendown)",
+        "direction": "direction",
+        "distance": "distance",
+        "unit": "unit"
     },
 
     "commands": {
-        "advance": ["go forward", "move forward"],
+        "advance": ["advance", "forward", "go", "move forward", "go forward"],
+        "retreat": ["retreat", "backward", "back", "move backward", "go back"],
         "left": ["left", "turn left"],
         "right": ["right", "turn right"],
-        "stop": ["stop", "halt"]
-        
+        "stop": ["stop", "halt", "stop moving"],
+        "linking_words": ["to", "at", "towards"],
+        "distance": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50],
+        "meters": ["meters", "meter", "m"],
+        "degrees": ["degrees", "degree", "deg"]
     }
 }
