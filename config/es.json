@@ -22,7 +22,18 @@
         "start_trace": "comienza a dibujar (pendown)",
         "direction": "dirección",
         "distance": "distancia",
-        "unit": "unidad"
+        "unit": "unidad",
+
+        "unit_linker": "de",
+        "case_1_title": "INICIO CASO 1: Línea recta",
+        "case_2_title": "INICIO CASO 2: El Cuadrado",
+        "case_3_title": "INICIO CASO 3: El Objetivo",
+        "case_4_title": "INICIO CASO 4: Gestión de obstáculos",
+
+        "case_1_done": "Fin del Caso 1",
+        "square_done": "¡Recorrido cuadrado finalizado!",
+        "target_reached": "¡Objetivo alcanzado y recogido!",
+        "obstacle_detected": "ERROR: Obstáculo detectado. Redireccionando."
     },
     "commands": {
         "advance": ["avanza", "adelante", "marcha", "avanzar", "ir", "ir recto"],

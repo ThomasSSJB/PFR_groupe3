@@ -22,7 +22,18 @@
         "start_trace": "commence à tracer (pendown)",
         "direction": "direction",
         "distance": "distance",
-        "unit": "unité"
+        "unit": "unité",
+
+        "unit_linker": "de",
+        "case_1_title":"DÉBUT CAS 1 : Ligne droite",
+        "case_2_title": "DÉBUT CAS 2 : Le Carré",
+        "case_3_title": "DÉBUT CAS 3 : La Cible",
+        "case_4_title": "DÉBUT CAS 4 : Gestion d'obstacle",
+
+        "case_1_done": "Fin du Cas 1",
+        "square_done": "Parcours Carré effectué !",
+        "target_reached": "Cible atteinte et ramassée !",
+        "obstacle_detected": "ERREUR: Obstacle détecté. Redirection."
     },
     "commands": {
         "advance": ["avance", "avant", "marche", "avancer", "aller", "aller tout droit"],

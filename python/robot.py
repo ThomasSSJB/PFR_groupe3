@@ -1,5 +1,4 @@
 import turtle
-import math
 
 class Robot:
 
@@ -22,53 +21,57 @@ class Robot:
 
 	def avancer(self, distance):
 		"""Déplace le robot vers l'avant et logue l'action."""
-		prefixe = self.messages.get('prefixe', '[TRACE]')
-		action = self.messages.get('avancer', 'avance')
-		unite = self.messages.get('unite_distance', 'metres')
-		print(f"{prefixe} Robot {action} de {distance} {unite}.")
+		prefix = self.messages.get('prefix', '[TRACE]')
+		action = self.messages.get('advance', 'avance')
+		unit = self.messages.get('distance_unit', 'metres')
+		linker = self.messages.get('unit_linker', 'de') 
+		print(f"{prefix} Robot {action} {linker} {distance} {unit}.")
 		self.t.forward(distance)
 
 	def reculer(self, distance):
 		"""Déplace le robot vers l'arrière et logue l'action."""
-		prefixe = self.messages.get('prefixe', '[TRACE]')
-		action = self.messages.get('reculer', 'recule')
-		unite = self.messages.get('unite_distance', 'metres')
-		print(f"{prefixe} Robot {action} de {distance} {unite}.")
+		prefix = self.messages.get('prefix', '[TRACE]')
+		action = self.messages.get('retreat', 'recule')
+		unit = self.messages.get('distance_unit', 'metres')
+		linker = self.messages.get('unit_linker', 'de') 
+		print(f"{prefix} Robot {action} {linker} {distance} {unit}.")
 		self.t.backward(distance)
 
 	def tourner_droite(self, angle):
-		prefixe = self.messages.get('prefixe', '[TRACE]')
-		action = self.messages.get('tourner_droite', 'tourne a droite')
-		unite = self.messages.get('unite_angle', 'degres')
-		print(f"{prefixe} Robot {action} de {angle} {unite}.")
+		prefix = self.messages.get('prefix', '[TRACE]')
+		action = self.messages.get('turn_right', 'tourne a droite')
+		unit = self.messages.get('angle_unit', 'degres')
+		linker = self.messages.get('unit_linker', 'de') 
+		print(f"{prefix} Robot {action} {linker} {angle} {unit}.")
 		self.t.right(angle)
 
 	def tourner_gauche(self, angle):
-		prefixe = self.messages.get('prefixe', '[TRACE]')
-		action = self.messages.get('tourner_gauche', 'tourne a gauche')
-		unite = self.messages.get('unite_angle', 'degres')
-		print(f"{prefixe} Robot {action} de {angle} {unite}.")
+		prefix = self.messages.get('prefix', '[TRACE]')
+		action = self.messages.get('turn_left', 'tourne a gauche')
+		unit = self.messages.get('angle_unit', 'degres')
+		linker = self.messages.get('unit_linker', 'de') 
+		print(f"{prefix} Robot {action} {linker} {angle} {unit}.")
 		self.t.left(angle)
 
 	def stop(self):
 		"""Lève le crayon (mode sans traçage)."""
-		prefixe = self.messages.get('prefixe', '[TRACE]')
-		# Note : Ajoute 'stop_trace' dans tes JSON pour traduire ce message
-		print(f"{prefixe} Robot arrete de tracer (penup).")
+		prefix = self.messages.get('prefix', '[TRACE]')
+		action = self.messages.get('stop_trace', 'arrête de tracer')
+		print(f"{prefix} Robot {action} (penup).")
 		self.t.penup()
 
 	def start(self):
 		"""Abaisse le crayon (mode traçage)."""
-		prefixe = self.messages.get('prefixe', '[TRACE]')
-		# Note : Ajoute 'start_trace' dans tes JSON pour traduire ce message
-		print(f"{prefixe} Robot commence a tracer (pendown).")
+		prefix = self.messages.get('prefixe', '[TRACE]')
+		action = self.messages.get('start_trace', 'commence à tracer')
+		print(f"{prefix} Robot {action} (pendown).")
 		self.t.pendown()
 
 	def aller_a(self, x, y):
 		"""Déplace le robot directement aux coordonnées (x,y)"""
-		prefixe = self.messages.get('prefixe', '[TRACE]')
-		action = self.messages.get('aller_a', 'se deplace a la position absolue')
-		print(f"{prefixe} Robot {action} ({x}, {y}).")
+		prefix = self.messages.get('prefix', '[TRACE]')
+		action = self.messages.get('go_to', 'va à')
+		print(f"{prefix} Robot {action} ({x}, {y}).")
 		self.t.penup()
 		self.t.goto(x, y)
 		self.t.pendown()
@@ -79,5 +82,5 @@ class Robot:
 
 	def ecrire_message(self, message):
 		"""Écrit un message sur l'écran de simulation."""
-		self.t.write(message, align="center", font=("Arial", 10, "normal"))
+		self.t.write(message, align="center", font=("Arial", 10, "bold"))
 

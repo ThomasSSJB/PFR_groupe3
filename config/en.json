@@ -22,7 +22,18 @@
         "start_trace": "starts drawing (pendown)",
         "direction": "direction",
         "distance": "distance",
-        "unit": "unit"
+        "unit": "unit",
+
+        "unit_linker": "",
+        "case_1_title": "START CASE 1: Straight line",
+        "case_2_title": "START CASE 2: The Square",
+        "case_3_title": "START CASE 3: The Target",
+        "case_4_title": "START CASE 4: Obstacle management",
+
+        "case_1_done": "End of Case 1",
+        "square_done": "Square path completed!",
+        "target_reached": "Target reached and collected!",
+        "obstacle_detected": "ERROR: Obstacle detected. Redirecting."
     },
 
     "commands": {
