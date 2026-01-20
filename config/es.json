@@ -4,7 +4,7 @@
     },
     "messages": {
         "welcome_text": "¡Hola!",
-        "prefix": "[TRAZA]",
+        "prefix": "[TRACE]",
         "confirmation": "Entendido.",
         "ask_command": "¿Qué quieres que haga el robot?",
         "error_command": "No entendí la orden.",
@@ -31,20 +31,21 @@
         "case_4_title": "INICIO CASO 4: Gestión de obstáculos",
 
         "case_1_done": "Fin del Caso 1",
-        "square_done": "¡Recorrido cuadrado finalizado!",
+        "square_done": "¡Recorrido cuadrado completado!",
         "target_reached": "¡Objetivo alcanzado y recogido!",
-        "obstacle_detected": "ERROR: Obstáculo detectado. Redireccionando."
+        "obstacle_detected": "ERROR: Obstáculo detectado. Redirección."
     },
     "commands": {
         "advance": ["avanza", "adelante", "marcha", "avanzar", "ir", "ir recto"],
-        "retreat": ["retrocede", "atrás", "retroceso", "retroceder", "ir atrás"],
-        "left": ["izquierda", "girar a la izquierda"],
-        "right": ["derecha", "girar a la derecha"],
+        "retreat": ["retrocede", "atrás", "retroceso", "retroceder", "ir hacia atrás"],
+        "left": ["izquierda"],
+        "right": ["derecha"],
+        "to": ["a"],
         "stop": ["para", "detén", "detener", "parar"],
-        "linking_words": ["a", "hacia", "hasta"],
-        "distance": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50],
+        "linking_words": ["y", "hacia"],
+        "distance": {"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9,"10":10,"11":11,"12":12,"13":13,"14":14,"15":15,"16":16,"17":17,"18":18,"19":19,"20":20},
         "meters": ["metros", "metro", "m"],
         "degrees": ["grados", "grado", "°"],
-        "turn": ["girar", "rotar", "dar vuelta", "pivotar", "girar sobre sí mismo", "gira", "rota", "da vuelta", "pivota", "gira sobre ti mismo"]
+        "turn": ["girar", "pivotar", "rotación", "virar", "dar media vuelta", "gira", "pivota", "haz una rotación", "vira", "haz media vuelta"]
     }
 }

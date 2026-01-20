@@ -36,19 +36,17 @@ class Robot:
 		print(f"{prefixe} Robot {action} de {distance} {unite}.")
 		self.t.backward(distance)
 
-	def tourner_droite(self, angle):
-		prefixe = self.messages.get('prefixe', '[TRACE]')
-		action = self.messages.get('tourner_droite', 'tourne a droite')
-		unite = self.messages.get('unite_angle', 'degres')
-		print(f"{prefixe} Robot {action} de {angle} {unite}.")
-		self.t.right(angle)
 
-	def tourner_gauche(self, angle):
+	def tourner (self, angle,direction):
 		prefixe = self.messages.get('prefixe', '[TRACE]')
-		action = self.messages.get('tourner_gauche', 'tourne a gauche')
+		action = self.messages.get('tourner', 'tourne')
 		unite = self.messages.get('unite_angle', 'degres')
-		print(f"{prefixe} Robot {action} de {angle} {unite}.")
-		self.t.left(angle)
+		if direction=="right":
+			print(f"{prefixe} Robot {action} de {angle} {unite} a droite.")
+			self.t.right(angle)
+		elif direction=="left":
+			print(f"{prefixe} Robot {action} de {angle} {unite} a gauche.")
+			self.t.left(angle)
 
 	def stop(self):
 		"""Lève le crayon (mode sans traçage)."""
