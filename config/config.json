@@ -1,6 +1,6 @@
 {
     "parametres_generaux": {
-        "langue_actuelle": "es",
+        "langue_actuelle": "en",
         "liste_langues": ["fr", "en", "es"],
         "mode_debug": true
     },
