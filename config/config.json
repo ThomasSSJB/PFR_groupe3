@@ -17,10 +17,10 @@
             "jaune": { "intensite_min": 40 }
         },
         "formes": ["cercle", "rectangle", "triangle"],
-        "quantification_bits": 3,
+        "quantification_bits": 2,
         "tolerance_detection": {
-            "seuil_couleur": 20,
-            "seuil_forme": 15
+            "seuil_binarisation": 56,
+            "seuil_forme": 80
         }
     },
     "simulation_graphique": {

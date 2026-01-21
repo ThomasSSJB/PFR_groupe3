@@ -1,0 +1,18 @@
+ => Configuration chargée depuis config/config_base.json
+ -> Configuration : 2 bits de quantification, seuil de couleur (saturation)=60
+
+===== Binarisation d'une image de test =====
+3 3
+0 1 1 
+1 0 1 
+1 1 1 
+
+===== Histogramme de l'image de test =====
+* 3 -> 11.11%
+* 16 -> 11.11%
+* 21 -> 22.22%
+* 24 -> 11.11%
+* 32 -> 11.11%
+* 45 -> 11.11%
+* 48 -> 11.11%
+* 51 -> 11.11%

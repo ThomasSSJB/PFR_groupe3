@@ -1,0 +1,3 @@
+
+ --> Nombre de bits utilisés pour la quantification : 2
+Aucun objet identifié sur l'image.

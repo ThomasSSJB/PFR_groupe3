@@ -1,0 +1,18 @@
+
+ --> Nombre de bits utilisés pour la quantification : 2
+
+===== Objet 1 =====
+Coordonnées de l'objet : de (0, 0) à (23, 53)
+[TRACE] indice_max = 16
+[TRACE] masque = 3
+[TRACE] R = 1, V = 0, B = 0
+[TRACE] seuil_fort = 2
+Couleur : ROUGE
+
+===== Objet 2 =====
+Coordonnées de l'objet : de (107, 101) à (172, 167)
+[TRACE] indice_max = 56
+[TRACE] masque = 3
+[TRACE] R = 3, V = 2, B = 0
+[TRACE] seuil_fort = 2
+Couleur : JAUNE

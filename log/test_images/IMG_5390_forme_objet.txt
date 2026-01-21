@@ -1,0 +1,29 @@
+
+ --> Nombre de bits utilisés pour la quantification : 3
+
+===== Objet 1 =====
+Coordonnées de l'objet : de (98, 12) à (124, 41)
+Couleur : JAUNE
+[TRACE] seuil_forme = 0.80
+[TRACE] perimetre = 78
+[TRACE] aire = 612
+[TRACE] circularite = 1.26
+Forme : Cercle
+
+===== Objet 2 =====
+Coordonnées de l'objet : de (112, 265) à (135, 291)
+Couleur : BLEU
+[TRACE] seuil_forme = 0.80
+[TRACE] perimetre = 72
+[TRACE] aire = 524
+[TRACE] circularite = 1.27
+Forme : Cercle
+
+===== Objet 3 =====
+Coordonnées de l'objet : de (168, 119) à (246, 197)
+Couleur : ROUGE
+[TRACE] seuil_forme = 0.80
+[TRACE] perimetre = 225
+[TRACE] aire = 4952
+[TRACE] circularite = 1.23
+Forme : Cercle

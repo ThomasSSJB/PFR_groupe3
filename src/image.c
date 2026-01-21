@@ -4,33 +4,45 @@
 #include <math.h>
 #include "../include/image.h"
 #include "../include/forme.h"
+#include "../include/config.h"
 
 struct Image {
     int largeur;
     int hauteur;
-    int mat_rouge[LARGEUR_MAX][HAUTEUR_MAX];
-    int mat_vert[LARGEUR_MAX][HAUTEUR_MAX];
-    int mat_bleu[LARGEUR_MAX][HAUTEUR_MAX];
+    int** mat_rouge;
+    int** mat_vert;
+    int** mat_bleu;
 };
 
-enum Couleur {ROUGE, VERT, BLEU, JAUNE};
 
-
-Image init_image(void) {
+Image init_image(int largeur_image, int hauteur_image) {
     Image image = malloc(sizeof(struct Image));
-    image->largeur = 0;
-    image->hauteur = 0;
+    image->largeur = largeur_image;
+    image->hauteur = hauteur_image;
+
+    image->mat_rouge = (int**) malloc(largeur_image*sizeof(int*));
+    image->mat_vert = (int**) malloc(largeur_image*sizeof(int*));
+    image->mat_bleu = (int**) malloc(largeur_image*sizeof(int*));
+
+    for (int i=0 ; i<largeur_image ; i++) {
+        image->mat_rouge[i] = (int*) malloc(hauteur_image*sizeof(int));
+        image->mat_vert[i] = (int*) malloc(hauteur_image*sizeof(int));
+        image->mat_bleu[i] = (int*) malloc(hauteur_image*sizeof(int));
+    }
     return image;
 }
 
 
-void lire_image(Image *ptr_image) {
+Image lire_image() {
+    Image image;
     int largeur, hauteur, tmp, valeur_pixel;
 
     /* Récupération de la hauteur et de la largeur */
     scanf("%d%d%d", &largeur, &hauteur, &tmp);
-    (*ptr_image)->largeur = largeur;
-    (*ptr_image)->hauteur = hauteur;
+    
+    /* Initialise l'image */
+    image = init_image(largeur, hauteur);
+
 
     for (int k=0 ; k<3 ; k++) {
         for (int i=0 ; i<largeur ; i++) {
@@ -39,16 +51,18 @@ void lire_image(Image *ptr_image) {
                 scanf("%d", &valeur_pixel);
 
                 /* Remplit la matrice rouge */
-                if (k == 0) (*ptr_image)->mat_rouge[i][j] = valeur_pixel;
+                if (k == 0) image->mat_rouge[i][j] = valeur_pixel;
 
                 /* Remplit la matrice verte */
-                if (k == 1) (*ptr_image)->mat_vert[i][j] = valeur_pixel;
+                if (k == 1) image->mat_vert[i][j] = valeur_pixel;
 
                 /* Remplit la matrice bleue */
-                if (k == 2) (*ptr_image)->mat_bleu[i][j] = valeur_pixel;
+                if (k == 2) image->mat_bleu[i][j] = valeur_pixel;
             }
         }
     }
+
+    return image;
 }
 
 
@@ -92,34 +106,59 @@ void afficher_image_binaire(int** img_bin, int largeur, int hauteur) {
 }
 
 
-void afficher_image_boite_englobante(Image image, int delta) {
-    /* Binarisation de l'image */
-    int** img_bin = binariser_image(image, 60);
+void afficher_image_boites_englobantes(Image image, int delta) {
+    /* Binarisation et Labellisation de l'image */
+    int** img_bin = binariser_image(image);
+    int** img_labelisee = labelliser_image_binaire(img_bin, image->largeur, image->hauteur);
 
-    /* Récupération des coordonnées des 'coins' de l'objet */
-    int* tab = trouver_coordonnees_forme(image);
-    
-    /* Initialisation des variables */
-    int i_min = tab[0] - delta;
-    int j_min = tab[1] - delta;
-    int i_max = tab[2] + delta;
-    int j_max = tab[3] + delta;
+    /* Trouve le nombre d'objets sur l'image */
+    int nb_objets = max_matrice(img_labelisee, image->largeur, image->hauteur);
 
-    /* Test si le cadre n'est pas trop grand */
-    if ((i_min <= 0 || j_min <= 0 || i_max >= image->largeur || j_max >= image->hauteur)) fprintf(stderr, "Erreur: cadre trop grand.\n");
+    /* Pour chaque objet */
+    for (int k=1 ; k<nb_objets+1 ; k++) {
 
-    /* Délimite le cadre dans la matrice binaire */
-    for (int i=0 ; i<image->largeur ; i++) {
-        for (int j=0 ; j<image->hauteur ; j++) {
-            if ((i == i_min) && (j >= j_min) && (j <= j_max)) img_bin[i][j] = 7;    // côté supérieur
-            else if ((i == i_max) && (j >= j_min) && (j <= j_max)) img_bin[i][j] = 7;    // côté inférieur
-            else if ((j == j_min) && (i >= i_min) && (i <= i_max)) img_bin[i][j] = 7;    // côté gauche
-            else if ((j == j_max) && (i >= i_min) && (i <= i_max)) img_bin[i][j] = 7;    // côté gauche
+        /* Récupération des coordonnées des 'coins' de l'objet */
+        int* tab = trouver_coordonnees_forme(image, k);
+        
+        /* Initialisation des variables */
+        int i_min = tab[0] - delta;
+        int j_min = tab[1] - delta;
+        int i_max = tab[2] + delta;
+        int j_max = tab[3] + delta;
+
+        /* Test si le cadre n'est pas trop grand */
+        if (i_min < 0) i_min = 0;
+        if (j_min < 0) j_min = 0;
+        if (i_max > image->largeur) i_max = image->largeur;
+        if (j_max > image->hauteur) j_max = image->hauteur;
+        
+        /* Délimite le cadre dans la matrice binaire */
+        for (int i=0 ; i<image->largeur ; i++) {
+            for (int j=0 ; j<image->hauteur ; j++) {
+                if ((i == i_min) && (j >= j_min) && (j <= j_max)) img_labelisee[i][j] = 7;    // côté supérieur
+                else if ((i == i_max) && (j >= j_min) && (j <= j_max)) img_labelisee[i][j] = 7;    // côté inférieur
+                else if ((j == j_min) && (i >= i_min) && (i <= i_max)) img_labelisee[i][j] = 7;    // côté gauche
+                else if ((j == j_max) && (i >= i_min) && (i <= i_max)) img_labelisee[i][j] = 7;    // côté gauche
+            }
         }
     }
 
-    /* Affichage de l'image binarisée avec la boîte englobante  */
-    afficher_image_binaire(img_bin, image->largeur, image->hauteur);
+    /* Affichage de l'image binarisée avec la (ou les) boîte(s) englobante(s)  */
+    afficher_image_binaire(img_labelisee, image->largeur, image->hauteur);
+}
+
+
+void afficher_pourcentages_histogramme(Histogramme hist, int taille_image) {
+    int seuil_quantif = lire_valeur_json("quantification_bits", config_json);
+    int taille_hist = (int) pow(2, 3*seuil_quantif);
+    float valeur;
+
+    for (int i=0 ; i<taille_hist ; i++) {
+        if (hist[i] != 0) {
+            valeur = (hist[i]/ (float) taille_image) * 100;
+            printf("* %d -> %.2f%%\n", i, valeur);
+        }
+    }
 }
 
 
@@ -145,7 +184,10 @@ Image niveau_gris_image(Image image, int niveau_gris) {
 }
 
 
-int** binariser_image(Image image, int seuil_saturation) {
+int** binariser_image(Image image) {
+    /* Charge le seuil de couleur (appellé dans ce contexte "seuil de saturation") depuis la config */
+    int seuil_saturation = lire_valeur_json("seuil_binarisation", config_json);
+
     /* Allocation de la matrice binaire */
     int** img_bin = (int**) malloc(image->largeur * sizeof(int*));
     for (int i = 0; i < image->largeur; i++) {
@@ -155,6 +197,7 @@ int** binariser_image(Image image, int seuil_saturation) {
     /* Parcours de tous les pixels de l'image */
     for (int i = 0; i < image->largeur; i++) {
         for (int j = 0; j < image->hauteur; j++) {
+
             /* Récupération des composantes RGB du pixel */
             int R = image->mat_rouge[i][j];
             int G = image->mat_vert[i][j];
@@ -162,13 +205,13 @@ int** binariser_image(Image image, int seuil_saturation) {
             
             /* Calcul du maximum des 3 composantes */
             int max = R;
-            if (G > max) { max = G; }
-            if (B > max) { max = B; }
+            if (G > max) max = G;
+            if (B > max) max = B;
             
             /* Calcul du minimum des 3 composantes */
             int min = R;
-            if (G < min) { min = G; }
-            if (B < min) { min = B; }
+            if (G < min) min = G;
+            if (B < min) min = B;
             
             /* Calcul de la saturation */
             int saturation = max - min;
@@ -185,9 +228,104 @@ int** binariser_image(Image image, int seuil_saturation) {
     return img_bin;
 }
 
+int** labelliser_image_binaire(int** img_bin, int largeur, int hauteur) {
+    /* Allocation et initialisation */
+    int** img_labelisee = (int**) malloc(largeur * sizeof(int*));
+    for (int i = 0; i < largeur; i++) {
+        img_labelisee[i] = (int*) calloc(hauteur, sizeof(int));
+    }
+    
+    int label_actuel = 1;
+    
+    /* PASS 1 : Labellisation provisoire*/
+    for (int i = 0; i < largeur; i++) {
+        for (int j = 0; j < hauteur; j++) {
+            /* Ignorer le fond */
+            if (img_bin[i][j] == 0) {
+                continue;
+            }
+            
+            /* Récupérer les labels des voisins déjà traités */
+            int label_haut = 0;
+            int label_gauche = 0;
+            
+            if (i > 0) {
+                label_haut = img_labelisee[i-1][j];
+            }
+            
+            if (j > 0) {
+                label_gauche = img_labelisee[i][j-1];
+            }
+            
+            /* CAS 1 : Aucun voisin → Nouveau label*/
+            if (label_haut == 0 && label_gauche == 0) {
+                label_actuel++;
+                img_labelisee[i][j] = label_actuel;
+            }
+            /* CAS 2 : Voisin haut seulement */
+            else if (label_haut != 0 && label_gauche == 0) {
+                img_labelisee[i][j] = label_haut;
+            }
+            /* CAS 3 : Voisin gauche seulement*/
+            else if (label_haut == 0 && label_gauche != 0) {
+                img_labelisee[i][j] = label_gauche;
+            }
+            /* CAS 4 : Les deux voisins*/
+            else {
+                /* Prendre le minimum des deux */
+                int min_label;
+                int max_label;
+                
+                if (label_haut < label_gauche) {
+                    min_label = label_haut;
+                    max_label = label_gauche;
+                } else {
+                    min_label = label_gauche;
+                    max_label = label_haut;
+                }
+                
+                img_labelisee[i][j] = min_label;
+                
+                /* Si différents, propager le minimum */
+                if (label_haut != label_gauche) {
+                    /* Remplacer tous les max_label par min_label */
+                    for (int ii = 0; ii <= i; ii++) {
+                        for (int jj = 0; jj < hauteur; jj++) {
+                            if (img_labelisee[ii][jj] == max_label) {
+                                img_labelisee[ii][jj] = min_label;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    /* PASS 2 : Renumérote pour avoir 1, 2, 3...*/
+    int correspondance[256] = {0};
+    int nouveau_label = 0;
+    
+    for (int i = 0; i < largeur; i++) {
+        for (int j = 0; j < hauteur; j++) {
+            int ancien = img_labelisee[i][j];
+            if (ancien > 0) {
+                if (correspondance[ancien] == 0) {
+                    nouveau_label++;
+                    correspondance[ancien] = nouveau_label;
+                }
+                img_labelisee[i][j] = correspondance[ancien];
+            }
+        }
+    }
+    
+    return img_labelisee;
+}
 
-int quantifier_pixel(int pixel[3], int seuil_quantif) {
+
+
+int quantifier_pixel(int pixel[3]) {
     /* Initialisation de la chaîne quantifiée et autres variables */
+    int seuil_quantif = lire_valeur_json("quantification_bits", config_json);
     char bin_quantif[3*seuil_quantif+1];
     int dec_quantif, index = 0;
 
@@ -234,7 +372,7 @@ int** quantifier_image(Image image) {
             pixel[2] = image->mat_bleu[i][j];
 
             /* Ajout du pixel quantifié à la matrice */
-            mat_quantif[i][j] = quantifier_pixel(pixel, 2);
+            mat_quantif[i][j] = quantifier_pixel(pixel);
         } 
     }
 
@@ -242,22 +380,13 @@ int** quantifier_image(Image image) {
 }
 
 
-int get_largeur(Image image) {
-    return image->largeur;
-}
-
-
-int get_hauteur(Image image) {
-    return image->hauteur;
-}
-
-
 Histogramme histogramme_image(Image image) {
     int** matrice = quantifier_image(image);   /* récupère la matrice quantifiée */
+    int seuil_quantif = lire_valeur_json("quantification_bits", config_json);   /* charge le nombre de bits pour la quantification */
 
     int indice;
-    int seuil = 2;   /* à remplacer avec la lecture du vrai seuil */
-    int taille = (int) pow(2, 3*seuil);
+    int taille = (int) pow(2, 3*seuil_quantif);
+
     /* tableau avec une taille de 2^(3*seuil) : 64, 512, 4096... */
     int* tab = (int*) malloc(taille*sizeof(int));
 
@@ -275,12 +404,79 @@ Histogramme histogramme_image(Image image) {
     }
 
     /* libération de la mémoire*/
-    for (int i=0 ; i<taille ; i++) {
+    for (int i=0 ; i<image->largeur ; i++) {
         free(matrice[i]);
     }
     free(matrice);
 
     return tab;
+}
+
+
+int nombre_objets_image(Image image) {
+    int** matrice_labellisee = labelliser_image_binaire(binariser_image(image), image->largeur, image->hauteur);
+    return max_matrice(matrice_labellisee, image->largeur, image->hauteur);
+}
+
+
+int get_largeur(Image image) {
+    return image->largeur;
+}
+
+
+int get_hauteur(Image image) {
+    return image->hauteur;
+}
+
+
+int** get_mat_rouge(Image image) {
+    return image->mat_rouge;
+}
+
+
+int** get_mat_vert(Image image) {
+    return image->mat_vert;
+}
+
+
+int** get_mat_bleu(Image image) {
+    return image->mat_bleu;
+}
+
+
+void set_largeur(Image image, int new_largeur) {
+    image->largeur = new_largeur;
+}
+
+void set_hauteur(Image image, int new_hauteur) {
+    image->hauteur = new_hauteur;
+}
+
+
+void set_mat_rouge(Image image, int** new_mat_rouge) {
+    for (int i=0 ; i<image->largeur ; i++) {
+        for (int j=0 ; j<image->hauteur ; j++) {
+            image->mat_rouge[i][j] = new_mat_rouge[i][j];
+        }
+    }
+}
+
+
+void set_mat_vert(Image image, int** new_mat_vert) {
+    for (int i=0 ; i<image->largeur ; i++) {
+        for (int j=0 ; j<image->hauteur ; j++) {
+            image->mat_vert[i][j] = new_mat_vert[i][j];
+        }
+    }
+}
+
+
+void set_mat_bleu(Image image, int** new_mat_bleu) {
+    for (int i=0 ; i<image->largeur ; i++) {
+        for (int j=0 ; j<image->hauteur ; j++) {
+            image->mat_bleu[i][j] = new_mat_bleu[i][j];
+        }
+    }
 }
 
 
@@ -316,4 +512,24 @@ int binaire_en_decimal(char* binaire) {
     }
     
     return decimal;
+}
+
+
+int max_tableau(int* tableau, int taille) {
+    int max = tableau[0];
+    for (int i=1 ; i<taille ; i++) {
+        if (max < tableau[i]) max = tableau[i];
+    }
+    return max;
+}
+
+
+int max_matrice(int** matrice, int largeur, int hauteur) {
+    int max = matrice[0][0];
+    for (int i=0 ; i<largeur ; i++) {
+        for (int j=0 ; j<hauteur ; j++) {
+            if (matrice[i][j] > max) max = matrice[i][j];
+        }
+    }
+    return max;
 }
