@@ -152,3 +152,27 @@ Couleur trouver_couleur_objet(Image sous_image) {
   /* Retourne la couleur trouvée */
   return couleur_objet;
 }
+
+
+void commande_balle(const char* direction, float angle, float distance, char L[][64], int* nb_cmd)
+{
+    *nb_cmd = 0;
+
+    if (strcmp(direction, "milieu") == 0)
+    {
+        float d = distance -5;
+
+        snprintf(L[*nb_cmd], 64, "[\"advance\", %.2f, \"meters\"]", d);
+        (*nb_cmd)++;
+    }
+    else if (strcmp(direction, "gauche") == 0)
+    {
+        snprintf(L[*nb_cmd], 64,"[\"turn\", \"left\", %.2f, \"degrees\"]", fabs(angle));
+        (*nb_cmd)++;
+    }
+    else if (strcmp(direction, "droite") == 0)
+    {
+        snprintf(L[*nb_cmd], 64, "[\"turn\", \"right\", %.2f, \"degrees\"]", fabs(angle));
+        (*nb_cmd)++;
+    }
+}
