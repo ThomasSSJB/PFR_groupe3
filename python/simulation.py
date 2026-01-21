@@ -19,16 +19,19 @@ PAS_ANGLE = 5      # rotation par pas
 DELAI_ANIM = 0.02  # délai entre chaque pas (plus petit = plus rapide)
 
 DELAI_LECTURE = 0.1  # délai entre deux lectures de action.txt
+ACTIONS = {"advance", "retreat", "turn", "stop"}
 
 def decouper_commandes(mots):
+    mots = [m for m in mots if m != "link"]
+
     commandes = []
     courante = []
 
     for mot in mots:
-        if mot == "and":
+        if mot in ACTIONS:
             if courante:
                 commandes.append(courante)
-                courante = []
+            courante = [mot]
         else:
             courante.append(mot)
 
@@ -36,6 +39,9 @@ def decouper_commandes(mots):
         commandes.append(courante)
 
     return commandes
+
+
+
 
 
 def lire_action():
@@ -49,7 +55,7 @@ def lire_action():
 
 def effacer_action():
     """Efface l'action après traitement."""
-    open(FICHIER_ACTION, "w").close()
+    open(FICHIER_ACTION, "r").close()
 
 
 def tourner(robot, mots):
@@ -81,16 +87,18 @@ def appliquer_actions(mots, robot):
         params = cmd[1:]
 
         if action == "advance":
-            params = cmd[1:]
-            numbers = [int(p) for p in params if p.lstrip("-").isdigit()]
+            distance = DISTANCE
 
-            if "to" in params and len(numbers) >= 2:
-                robot.aller_a(numbers[0], numbers[1])
-            else:
-                distance = DISTANCE
-                if numbers:
-                    distance = numbers[0]
-                robot.avancer(distance)
+            if params:
+                if params[0].isdigit():
+                    if len(params) >= 2 and params[1] == "meters":
+                        distance = int(params[0])
+                    else:
+                        print("[ERREUR] advance attend 'meters' après la distance")
+                        continue
+
+            robot.avancer(distance)
+
 
 
 
