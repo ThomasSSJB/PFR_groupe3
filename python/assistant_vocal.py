@@ -1,56 +1,57 @@
 import speech_recognition as sr
 from gtts import gTTS
-import sounddevice as sd
-import soundfile as sf
-import os
 
-# ---------------- CONFIG ----------------
-FICHIER_COMMANDE = "../commande.txt"
+FICHIER_COMMANDE = "commande.txt"
+LANGUE = "fr-FR"
 
-DUREE_ENREGISTREMENT = 3
-FREQUENCE = 44100
-
-# ---------------- INIT ----------------
 recognizer = sr.Recognizer()
+microphone = sr.Microphone()
 
-# ---------------- MICRO ----------------
-def record_audio(filename="temp.wav", duration=DUREE_ENREGISTREMENT, fs=FREQUENCE):
-    print("Speak!")
-    audio = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype="int16")
-    sd.wait()
-    sf.write(filename, audio, fs)
-    print("End!")
-    return filename
+def normaliser_transcription(texte):
+    """
+    Nettoyage simple de la transcription
+    conforme au PFR
+    """
+    texte = texte.lower().strip()
+    tokens = texte.split()
+    print("Tokens :", tokens)
+    return " ".join(tokens)   # STRING pour le C
 
-# ---------------- ENVOI AU C ----------------
 def envoyer_texte_au_C(texte):
+    """
+    Envoi de la commande vers le module C
+    """
     with open(FICHIER_COMMANDE, "w", encoding="utf-8") as f:
         f.write(texte)
 
-# ---------------- MAIN ----------------
-def main():
-    wav_file = record_audio()
+def text_to_speech(message):
+    """
+    Synthèse vocale (optionnelle PFR)
+    """
+    tts = gTTS(message, lang="fr")
+    tts.save("reponse.mp3")
 
-    with sr.AudioFile(wav_file) as source:
-        audio = recognizer.record(source)
+def main():
+    with microphone as source:
+        print("Speak!")
+        audio = recognizer.listen(source)
+        print("End!")
 
     try:
-        texte = recognizer.recognize_google(audio, language="fr-FR")
-        texte = texte.lower().strip()
-        print("Vous avez dit :", texte)
+        transcription = recognizer.recognize_google(audio, language=LANGUE)
+        print("Vous avez dit :", transcription)
     except sr.UnknownValueError:
         print("Erreur : parole non reconnue")
-        texte = ""
+        return
     except sr.RequestError:
         print("Erreur : service indisponible")
-        texte = ""
+        return
 
-    if texte:
-        envoyer_texte_au_C(texte)
-        speech = gTTS("Commande envoyée.", lang="fr")
-        speech.save("rep.mp3")
-        os.system("afplay rep.mp3")
+    commande = normaliser_transcription(transcription)
+    envoyer_texte_au_C(commande)
 
-# ---------------- EXEC ----------------
+    text_to_speech("Commande envoyée.")
+
+
 if __name__ == "__main__":
     main()

@@ -79,7 +79,7 @@ def tourner(robot, mots):
             time.sleep(DELAI_ANIM)
 
 
-def appliquer_actions(mots, robot):
+def     appliquer_actions(mots, robot):
     commandes = decouper_commandes(mots)
 
     for cmd in commandes:
@@ -87,17 +87,22 @@ def appliquer_actions(mots, robot):
         params = cmd[1:]
 
         if action == "advance":
-            distance = DISTANCE
-
             if params:
-                if params[0].isdigit():
+                if params[0] == "to" and len(params) >= 3 and params[1].isdigit() and params[2].isdigit():
+                    x = int(params[1])
+                    y = int(params[2])
+                    robot.aller_a(x, y)
+                elif params[0].isdigit():
                     if len(params) >= 2 and params[1] == "meters":
                         distance = int(params[0])
+                        robot.avancer(distance)
                     else:
                         print("[ERREUR] advance attend 'meters' après la distance")
                         continue
-
-            robot.avancer(distance)
+                else:
+                    robot.avancer(DISTANCE)
+            else:
+                robot.avancer(DISTANCE)
 
 
 
@@ -112,9 +117,9 @@ def appliquer_actions(mots, robot):
 
         elif action == "turn":
             direction = None
-            if "left" in params or "gauche" in params:
+            if "left" in params:
                 direction = "left"
-            elif "right" in params or "droite" in params:
+            elif "right"in params:
                 direction = "right"
 
             if direction:
