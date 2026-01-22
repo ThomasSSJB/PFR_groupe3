@@ -154,25 +154,24 @@ Couleur trouver_couleur_objet(Image sous_image) {
 }
 
 
-void commande_balle(const char* direction, float angle, float distance, char L[][64], int* nb_cmd)
+void commande_balle(const char* direction, int angle, int distance)
 {
-    *nb_cmd = 0;
+    FILE* f = fopen("action.txt", "w");
+    if (!f) return;
 
     if (strcmp(direction, "milieu") == 0)
     {
-        float d = distance -5;
-
-        snprintf(L[*nb_cmd], 64, "[\"advance\", %.2f, \"meters\"]", d);
-        (*nb_cmd)++;
+        int d = distance - 5;
+        fprintf(f, "[\"advance\", %d, \"meters\"]", d);
     }
     else if (strcmp(direction, "gauche") == 0)
     {
-        snprintf(L[*nb_cmd], 64,"[\"turn\", \"left\", %.2f, \"degrees\"]", fabs(angle));
-        (*nb_cmd)++;
+        fprintf(f, "[\"turn\", \"left\", %d, \"degrees\"]", abs(angle));
     }
     else if (strcmp(direction, "droite") == 0)
     {
-        snprintf(L[*nb_cmd], 64, "[\"turn\", \"right\", %.2f, \"degrees\"]", fabs(angle));
-        (*nb_cmd)++;
+        fprintf(f, "[\"turn\", \"right\", %d, \"degrees\"]", abs(angle));
     }
+
+    fclose(f);
 }
