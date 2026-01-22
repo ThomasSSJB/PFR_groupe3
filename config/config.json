@@ -17,7 +17,7 @@
             "jaune": { "intensite_min": 40 }
         },
         "formes": ["cercle", "rectangle", "triangle"],
-        "quantification_bits": 2,
+        "quantification_bits": 3,
         "tolerance_detection": {
             "seuil_binarisation": 56,
             "seuil_forme": 80

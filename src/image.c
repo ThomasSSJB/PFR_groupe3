@@ -3,7 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "../include/image.h"
-#include "../include/forme.h"
+#include "../include/objet.h"
 #include "../include/config.h"
 
 struct Image {
@@ -116,15 +116,17 @@ void afficher_image_boites_englobantes(Image image, int delta) {
 
     /* Pour chaque objet */
     for (int k=1 ; k<nb_objets+1 ; k++) {
+        /* Défini l'objet courant */
+        Objet objet_courant = init_objet(k);
 
         /* Récupération des coordonnées des 'coins' de l'objet */
-        int* tab = trouver_coordonnees_forme(image, k);
+        trouver_coordonnees_objet(objet_courant, image);
         
         /* Initialisation des variables */
-        int i_min = tab[0] - delta;
-        int j_min = tab[1] - delta;
-        int i_max = tab[2] + delta;
-        int j_max = tab[3] + delta;
+        int i_min = get_x_dep(objet_courant) - delta;
+        int j_min = get_y_dep(objet_courant) - delta;
+        int i_max = get_x_arr(objet_courant) + delta;
+        int j_max = get_y_arr(objet_courant) + delta;
 
         /* Test si le cadre n'est pas trop grand */
         if (i_min < 0) i_min = 0;
@@ -187,6 +189,9 @@ Image niveau_gris_image(Image image, int niveau_gris) {
 int** binariser_image(Image image) {
     /* Charge le seuil de couleur (appellé dans ce contexte "seuil de saturation") depuis la config */
     int seuil_saturation = lire_valeur_json("seuil_binarisation", config_json);
+    int intensite_min_rouge = lire_valeur_json("intensite_min_rouge", config_json);
+    int intensite_min_vert = lire_valeur_json("intensite_min_vert", config_json);
+    int intensite_min_bleu = lire_valeur_json("intensite_min_bleu", config_json);
 
     /* Allocation de la matrice binaire */
     int** img_bin = (int**) malloc(image->largeur * sizeof(int*));
@@ -202,26 +207,30 @@ int** binariser_image(Image image) {
             int R = image->mat_rouge[i][j];
             int G = image->mat_vert[i][j];
             int B = image->mat_bleu[i][j];
-            
-            /* Calcul du maximum des 3 composantes */
-            int max = R;
-            if (G > max) max = G;
-            if (B > max) max = B;
-            
-            /* Calcul du minimum des 3 composantes */
-            int min = R;
-            if (G < min) min = G;
-            if (B < min) min = B;
-            
-            /* Calcul de la saturation */
-            int saturation = max - min;
-            
-            /* Binarisation selon le seuil */
-            if (saturation > seuil_saturation) {
-                img_bin[i][j] = 1;  /* Pixel coloré = objet */
+
+            if (R < intensite_min_rouge && G < intensite_min_vert && B < intensite_min_bleu) {
+                img_bin[i][j] = 0;
             } else {
-                img_bin[i][j] = 0;  /* Pixel neutre = fond */
-            }
+                /* Calcul du maximum des 3 composantes */
+                int max = R;
+                if (G > max) max = G;
+                if (B > max) max = B;
+                
+                /* Calcul du minimum des 3 composantes */
+                int min = R;
+                if (G < min) min = G;
+                if (B < min) min = B;
+                
+                /* Calcul de la saturation */
+                int saturation = max - min;
+                
+                /* Binarisation selon le seuil */
+                if (saturation > seuil_saturation) {
+                    img_bin[i][j] = 1;  /* Pixel coloré = objet */
+                } else {
+                    img_bin[i][j] = 0;  /* Pixel neutre = fond */
+                }
+            }            
         }
     }
     
