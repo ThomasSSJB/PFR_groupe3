@@ -78,4 +78,3 @@ class Robot:
 	def ecrire_message(self, message):
 		"""Écrit un message sur l'écran de simulation."""
 		self.t.write(message, align="center", font=("Arial", 10, "normal"))
-

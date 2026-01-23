@@ -55,7 +55,7 @@ def lire_action():
 
 def effacer_action():
     """Efface l'action après traitement."""
-    open(FICHIER_ACTION, "w").close()
+    open(FICHIER_ACTION, "r").close()
 
 
 def tourner(robot, mots):
@@ -79,7 +79,7 @@ def tourner(robot, mots):
             time.sleep(DELAI_ANIM)
 
 
-def     appliquer_actions(mots, robot):
+def appliquer_actions(mots, robot):
     commandes = decouper_commandes(mots)
 
     for cmd in commandes:
@@ -145,9 +145,17 @@ def     appliquer_actions(mots, robot):
 
 
 def main():
-    screen = turtle.Screen()
-    screen.title("Simulation Robot – Commande Vocale")
-    screen.bgcolor("white")
+    # Vérifier si une fenêtre existe déjà
+    try:
+        screen = turtle.Screen()
+    except:
+        screen = turtle.Screen()
+        screen.title("Simulation Robot – Commande Vocale")
+        screen.bgcolor("white")
+    
+    #screen = turtle.Screen()
+    #screen.title("Simulation Robot – Commande Vocale")
+    #screen.bgcolor("white")
 
     robot = Robot()
     print("[SIMULATION] En attente de commandes vocales...")

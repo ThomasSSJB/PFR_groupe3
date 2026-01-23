@@ -122,7 +122,7 @@ def executer_trajectoire(ref_robot, ref_env):
 # 4. INITIALISATION ET MISSION
 
 def initialiser_environnement():
-    piece = {'nom': 'entrepot', 'dimensions': (400, 400), 'coin_HD': (200, 200),
+    piece = {'nom': 'entrepot', 'dimensions': (600, 600), 'coin_HD': (300, 300),
              'couleur': 'blue', 'trait': 5, 'ouvertures': [], 'obstacles': []}
     
     ouverture = {'nom': 'porte1', 'largeur': 60, 'distance_porte_angle': 100, 
@@ -134,8 +134,8 @@ def initialiser_environnement():
                              'dimension': 15, 'couleur': 'red', 'trait': 1})
     ajouter_obstacle(piece, {'nom': 'balle_jaune', 'type': 'cercle', 'centre': (0, -80), 
                              'dimension': 20, 'couleur': 'yellow', 'trait': 1})
-    ajouter_obstacle(piece, {'nom': 'balle_verte', 'type': 'cercle', 'centre': (100, 40), 
-                             'dimension': 10, 'couleur': 'green', 'trait': 1})
+    ajouter_obstacle(piece, {'nom': 'balle_bleu', 'type': 'cercle', 'centre': (100, 40), 
+                             'dimension': 10, 'couleur': 'blue', 'trait': 1})
     return piece
 
 def definir_mission_robot(ref_env):
@@ -173,18 +173,16 @@ tracer_environnement(env)
 robot = definir_mission_robot(env)
 
 # 4. Tracer le mouvement sur l'écran
-tracer_trajectoire_robot(robot)
+# tracer_trajectoire_robot(robot)
 
 # 5. Mettre à jour les données du robot (calcul interne)
-executer_trajectoire(robot, env)
+# executer_trajectoire(robot, env)
 
 print(f"Mission accomplie. Position finale de {robot['nom']} : {robot['pos_robot']}")
 
 tl.hideturtle()
-tl.exitonclick()
+# tl.exitonclick()
 
-def main():
-    env = initialiser_environnement()
-    tracer_environnement(env)
+
 if __name__ == "__main__":
-    main()
+    pass  # Ne rien faire si exécuté directement
