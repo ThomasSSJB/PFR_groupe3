@@ -182,3 +182,9 @@ print(f"Mission accomplie. Position finale de {robot['nom']} : {robot['pos_robot
 
 tl.hideturtle()
 tl.exitonclick()
+
+def main():
+    env = initialiser_environnement()
+    tracer_environnement(env)
+if __name__ == "__main__":
+    main()

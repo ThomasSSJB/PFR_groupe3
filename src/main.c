@@ -34,6 +34,7 @@ int main(void){
     int angle_objet = trouver_angle_objet(balle_rouge, image);
 
     commande_balle(direction_objet, angle_objet, distance_objet);
+    system("python3 python/simulation.py");
 
 
     /* Libération */    

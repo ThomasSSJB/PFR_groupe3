@@ -376,15 +376,15 @@ void commande_balle(const char* direction, int angle, int distance)
   if (strcmp(direction, "milieu") == 0)
   {
     int d = distance - 5;
-    fprintf(f, "[\"advance\", %d, \"meters\"]", d);
+    fprintf(f, "\"advance\" %d \"meters\"", d);
   }
   else if (strcmp(direction, "gauche") == 0)
   {
-    fprintf(f, "[\"turn\", \"left\", %d, \"degrees\"]", abs(angle));
+    fprintf(f, "turn left %d degrees advance %d meters", abs(angle), distance);
   }
   else if (strcmp(direction, "droite") == 0)
   {
-    fprintf(f, "[\"turn\", \"right\", %d, \"degrees\"]", abs(angle));
+    fprintf(f, "\"turn\" \"right\" %d \"degrees\" \"advance\" %d \"meters\"", abs(angle), distance);
   }
 
   fclose(f);

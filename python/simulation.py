@@ -55,7 +55,7 @@ def lire_action():
 
 def effacer_action():
     """Efface l'action après traitement."""
-    open(FICHIER_ACTION, "r").close()
+    open(FICHIER_ACTION, "w").close()
 
 
 def tourner(robot, mots):
