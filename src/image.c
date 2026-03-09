@@ -1,3 +1,8 @@
+/* FICHIER: image.c
+*  AUTEUR: GRELET Thomas
+*  RÔLE: Analyse et transformation d'image : binarisation, labellisation, histogramme, quantification
+**/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,6 +10,7 @@
 #include "../include/image.h"
 #include "../include/objet.h"
 #include "../include/config.h"
+#include "../include/utils.h"
 
 struct Image {
     int largeur;
@@ -33,34 +39,50 @@ Image init_image(int largeur_image, int hauteur_image) {
 }
 
 
-Image lire_image() {
+Image lire_image(void) {
     Image image;
     int largeur, hauteur, tmp, valeur_pixel;
 
-    /* Récupération de la hauteur et de la largeur */
-    scanf("%d%d%d", &largeur, &hauteur, &tmp);
+    /* Choix de l'image */
+    int numero_image;
+    printf("\nEntrer le numéro de l'image à charger (image recommandée : 5402)\n");
+    printf("> ");
+    scanf("%d", &numero_image);
+
+    FILE* fichier = NULL;
+    char chemin[50];
+    sprintf(chemin, "image/IMG_%d.txt", numero_image);
+
+    // On ouvre le fichier en mode lecture ("r")
+    fichier = fopen(chemin, "r");
+
+    if (fichier == NULL) {
+        printf("Erreur : Impossible d'ouvrir le fichier %s\n", chemin);
+        exit(0);
+    }
+    printf("L'image IMG_%d.txt a été chargée.\n", numero_image);
+    
+    /* Récupération de la hauteur et de la largeur avec fscanf */
+    fscanf(fichier, "%d %d %d", &largeur, &hauteur, &tmp);
     
     /* Initialise l'image */
     image = init_image(largeur, hauteur);
 
-
     for (int k=0 ; k<3 ; k++) {
         for (int i=0 ; i<largeur ; i++) {
             for (int j=0 ; j<hauteur ; j++) {
-                /* Récupération de la valeur du pixel */
-                scanf("%d", &valeur_pixel);
-
-                /* Remplit la matrice rouge */
-                if (k == 0) image->mat_rouge[i][j] = valeur_pixel;
-
-                /* Remplit la matrice verte */
-                if (k == 1) image->mat_vert[i][j] = valeur_pixel;
-
-                /* Remplit la matrice bleue */
-                if (k == 2) image->mat_bleu[i][j] = valeur_pixel;
+                /* Récupération de la valeur du pixel dans le fichier */
+                if (fscanf(fichier, "%d", &valeur_pixel) != EOF) {
+                    /* Remplit les matrices */
+                    if (k == 0) image->mat_rouge[i][j] = valeur_pixel;
+                    if (k == 1) image->mat_vert[i][j] = valeur_pixel;
+                    if (k == 2) image->mat_bleu[i][j] = valeur_pixel;
+                }
             }
         }
     }
+
+    fclose(fichier);
 
     return image;
 }
@@ -123,10 +145,10 @@ void afficher_image_boites_englobantes(Image image, int delta) {
         trouver_coordonnees_objet(objet_courant, image);
         
         /* Initialisation des variables */
-        int i_min = get_x_dep(objet_courant) - delta;
-        int j_min = get_y_dep(objet_courant) - delta;
-        int i_max = get_x_arr(objet_courant) + delta;
-        int j_max = get_y_arr(objet_courant) + delta;
+        int i_min = get_i_min(objet_courant) - delta;
+        int j_min = get_j_min(objet_courant) - delta;
+        int i_max = get_i_max(objet_courant) + delta;
+        int j_max = get_j_max(objet_courant) + delta;
 
         /* Test si le cadre n'est pas trop grand */
         if (i_min < 0) i_min = 0;
@@ -376,9 +398,9 @@ int** quantifier_image(Image image) {
         for (int j=0 ; j<image->hauteur ; j++) {
 
             /* Remplissage du pixel courant */
-            pixel[0] = image->mat_rouge[i][j];
-            pixel[1] = image->mat_vert[i][j];
-            pixel[2] = image->mat_bleu[i][j];
+            pixel[0] = image->mat_rouge[i][j];  // R
+            pixel[1] = image->mat_vert[i][j];   // V
+            pixel[2] = image->mat_bleu[i][j];   // B
 
             /* Ajout du pixel quantifié à la matrice */
             mat_quantif[i][j] = quantifier_pixel(pixel);
@@ -423,7 +445,8 @@ Histogramme histogramme_image(Image image) {
 
 
 int nombre_objets_image(Image image) {
-    int** matrice_labellisee = labelliser_image_binaire(binariser_image(image), image->largeur, image->hauteur);
+    int** matrice_binarisee = binariser_image(image);
+    int** matrice_labellisee = labelliser_image_binaire(matrice_binarisee, image->largeur, image->hauteur);
     return max_matrice(matrice_labellisee, image->largeur, image->hauteur);
 }
 
@@ -486,59 +509,4 @@ void set_mat_bleu(Image image, int** new_mat_bleu) {
             image->mat_bleu[i][j] = new_mat_bleu[i][j];
         }
     }
-}
-
-
-/* =========== à déplacer =========== */
-
-/* Convertir un nombre décimal en binaire */
-char* decimal_en_binaire(int decimal) {
-    char* binaire = (char*)malloc(9 * sizeof(char));
-    int bit;
-    
-    for (int i=7 ; i>=0 ; i--) {
-        bit = decimal % 2;
-        binaire[i] = bit + '0';
-        decimal = decimal / 2;
-    }
-    
-    binaire[8] = '\0';
-    return binaire;
-}
-
-/* Convertir un nombre binaire en décimal */
-int binaire_en_decimal(char* binaire) {
-    int decimal = 0;
-    int puissance = 0;
-    int longueur = strlen(binaire);
-    
-    /* Lire de droite à gauche */
-    for (int i = longueur-1; i >= 0; i--) {
-        if (binaire[i] == '1') {
-            decimal = decimal + (int)pow(2, puissance);
-        }
-        puissance++;
-    }
-    
-    return decimal;
-}
-
-
-int max_tableau(int* tableau, int taille) {
-    int max = tableau[0];
-    for (int i=1 ; i<taille ; i++) {
-        if (max < tableau[i]) max = tableau[i];
-    }
-    return max;
-}
-
-
-int max_matrice(int** matrice, int largeur, int hauteur) {
-    int max = matrice[0][0];
-    for (int i=0 ; i<largeur ; i++) {
-        for (int j=0 ; j<hauteur ; j++) {
-            if (matrice[i][j] > max) max = matrice[i][j];
-        }
-    }
-    return max;
 }

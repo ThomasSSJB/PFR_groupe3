@@ -1,44 +1,81 @@
+/* FICHIER: main.c
+*  AUTEURS: GRELET Thomas, YAHYAOUI Nidal
+*  RÔLE: Point d'entrée du programme principal (intégration)
+**/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../include/commande_vocale.h"
 #include "../include/config.h"
 #include "../include/image.h"
 #include "../include/objet.h"
+#include "../include/utils.h"
 
-int main(void){
+#define PYTHON_CMD_VOC "python python/assistant_vocal.py"
+#define PYTHON_SIMU "python3 python/simulation.py"
+
+int main(void) {
+    int choix = 0;
+    int en_cours = 1;
+
+    /* ================= RESET action.txt AU DÉMARRAGE ================= */
+    FILE *f = fopen("data/action.txt", "w");
+    if (f) fclose(f);
+    /* ================================================================= */
+
     /* Charger la configuration */
     if (!charger_config("config/config.json")) {
         return 1;
     }
 
-    /* Test intégration */
+    printf("\n===== CHOIX DE L'IMAGE A TRAITER =====\n");
     Image image = lire_image();
-    Objet balle_rouge = init_objet(0);
-    int nb_objets = nombre_objets_image(image);
+    trouver_informations_balles(image);
 
-    for (int k=1 ; k<nb_objets+1 ; k++) {
-        Objet objet_courant = init_objet(k);
+    printf("\n===== SYSTEME DE COMMANDE ROBOT =====\n");
 
-        trouver_couleur_objet(objet_courant, image);
-        trouver_nature_objet(objet_courant, image);
+    while (en_cours) {
 
-        if (get_couleur_objet(objet_courant) == ROUGE && !strcmp(get_nature_forme_objet(objet_courant), "Cercle")) {
-            trouver_coordonnees_objet(objet_courant, image);
-            balle_rouge = objet_courant;
-            break;
+        printf("\n-----  Menu  des commandes  -----\n");
+        printf("1- Ecrire une commande (clavier)\n");
+        printf("2- Parler (commande vocale)\n");
+        printf("3- Lancer la simulation (turtle)\n");
+        printf("4- Arreter le programme\n");
+        printf("-> Choix : ");
+
+        if (scanf("%d", &choix) != 1) {
+            while (getchar() != '\n');
+            continue;
+        }
+        getchar(); // consomme \n
+
+        switch (choix) {
+
+            case 1:
+                saisir_clavier();
+                traiter_commande();   // écrit dans action.txt
+                break;
+
+            case 2:
+                system(PYTHON_CMD_VOC);
+                traiter_commande();   // écrit dans action.txt
+                break;
+            
+            case 3:
+                system(PYTHON_SIMU);
+                break;
+
+            case 4:
+                en_cours = 0;
+                break;
+
+            default:
+                printf("Choix invalide.\n");
         }
     }
 
-    char* direction_objet = trouver_direction_objet(balle_rouge, image);
-    int distance_objet = trouver_distance_objet(balle_rouge, image);
-    int angle_objet = trouver_angle_objet(balle_rouge, image);
-
-    commande_balle(direction_objet, angle_objet, distance_objet);
-    system("python3 python/run_simulation.py");
-
-
-    /* Libération */    
-    liberer_config();
+    printf("\nFin de la saisie des commandes.\n");
 
     return 0;
 }

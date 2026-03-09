@@ -1,3 +1,8 @@
+/* FICHIER: objet.c
+*  AUTEUR: GRELET Thomas
+*  RÔLE: Analyse d'objet : coordonnées, forme, couleur
+**/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,10 +15,10 @@ struct Objet {
   int id_objet;
   Couleur couleur;
   char* nature_forme;
-  int x_dep;
-  int y_dep;
-  int x_arr;
-  int y_arr;
+  int i_min;
+  int j_min;
+  int i_max;
+  int j_max;
 };
 
 
@@ -25,7 +30,7 @@ Objet init_objet(int id) {
 
 
 void afficher_coordonnees_objet(Objet objet) {
-  printf("Coordonnées de l'objet : de (%d, %d) à (%d, %d)\n", objet->x_dep, objet->y_dep, objet->x_arr, objet->y_arr);
+  printf("Coordonnées de l'objet : de (%d, %d) à (%d, %d)\n", objet->i_min, objet->j_min, objet->i_max, objet->j_max);
 }
 
 
@@ -49,24 +54,17 @@ void afficher_couleur_objet(Objet objet) {
 
 Image sous_image_objet(Objet objet, Image image, int delta) {
   /* Initialisation et allocation des variables */
-  int x_min_boite = objet->x_dep - delta;
-  int y_min_boite = objet->y_dep - delta;
-  int x_max_boite = objet->x_arr + delta;
-  int y_max_boite = objet->y_arr + delta;
+  int x_min_boite = objet->i_min - delta;
+  int y_min_boite = objet->j_min - delta;
+  int x_max_boite = objet->i_max + delta;
+  int y_max_boite = objet->j_max + delta;
   
 
   /* Application du delta en vérifiant que l'on ne sort pas du cadre */
-  if (x_min_boite < 0) x_min_boite = 0;
-  else x_min_boite -= delta;
-
-  if (y_min_boite < 0) y_min_boite = 0;
-  else y_min_boite -= delta;
-
-  if (x_max_boite > get_largeur(image)) x_max_boite = get_largeur(image)-1;
-  else x_max_boite += delta;
-
-  if (y_max_boite > get_hauteur(image)) y_max_boite = get_hauteur(image)-1;
-  else y_max_boite += delta;
+  if (x_min_boite <= 0) x_min_boite = 0;
+  if (y_min_boite <= 0) y_min_boite = 0;
+  if (x_max_boite >= get_largeur(image)) x_max_boite = get_largeur(image)-1;
+  if (y_max_boite >= get_hauteur(image)) y_max_boite = get_hauteur(image)-1;
 
   /* Définitions de la largeur et hauteur de la sous-image, puis initialisation */
   int largeur_sous_image = x_max_boite - x_min_boite + 1;
@@ -137,10 +135,18 @@ void trouver_coordonnees_objet(Objet objet, Image image) {
   }
 
   /* Affectation des valeurs à l'objet */
-  objet->x_dep = i_min;
-  objet->y_dep = j_min;
-  objet->x_arr = i_max;
-  objet->y_arr = j_max;
+  objet->i_min = i_min;
+  objet->j_min = j_min;
+  objet->i_max = i_max;
+  objet->j_max = j_max;
+
+  /* Libération mémoire */
+  for (int i = 0; i < get_largeur(image); i++) {
+    free(matrice_binarisee[i]);
+    free(matrice_labellisee[i]);
+  }
+  free(matrice_binarisee);
+  free(matrice_labellisee);
 }
 
 
@@ -191,9 +197,12 @@ void trouver_nature_objet(Objet objet, Image image) {
   }
 
   /* Libération mémoire */
-  for (int i = 0 ; i < get_largeur(image) ; i++)
+  for (int i = 0; i < get_largeur(image); i++) {
     free(matrice_binarisee[i]);
+    free(matrice_labellisee[i]);
+  }
   free(matrice_binarisee);
+  free(matrice_labellisee);
 
   
   /* Affecte la nature de la forme à l'objet */
@@ -209,6 +218,7 @@ void trouver_couleur_objet(Objet objet, Image image) {
   /* Calcul de l'histogramme */
   Image sous_image = sous_image_objet(objet, image, 1);
   Histogramme hist = histogramme_image(sous_image);
+  // afficher_pourcentages_histogramme(hist, get_largeur(sous_image)*get_hauteur(sous_image));
   
 
   /* ===== ETAPE 1 : Trouver la valeur la plus fréquente ===== */
@@ -284,57 +294,134 @@ void trouver_couleur_objet(Objet objet, Image image) {
 
 
 char* trouver_direction_objet(Objet objet, Image image) {
+  /* Initialisation de la chaîne à retourner */
   char* direction = "";
 
-  float x_centre_image = get_largeur(image) / (float) 2;
-  float x_centre_objet = ( objet->x_dep + objet->x_arr ) / (float) 2;
-  
-  float marge = x_centre_image / (float) 5;  // marge arbitraire
+  /* Coordonnée j de la vue du robot */
+  float j_vue_robot = get_largeur(image) / (float) 2;
 
-  // printf("[TRACE] x_centre_image = %.2f\n", x_centre_image);
-  // printf("[TRACE] x_centre_objet = %.2f\n", x_centre_objet);
-  // printf("[TRACE] marge = %.2f\n", marge);
+  /* Coordonnées j du centre de l'objet */
+  float j_centre_objet = (objet->j_min + objet->j_max) / (float) 2;
 
-  if (x_centre_objet < (x_centre_image - marge)) direction = "gauche";
-  else if (x_centre_objet > (x_centre_image + marge)) direction = "droite";
+  /* Calcul de la direction de l'objet */
+  float marge = get_largeur(image) / (float) 5;   // marge arbitraire à 5
+  if (j_centre_objet > (j_vue_robot + marge)) direction = "droite";
+  else if (j_centre_objet < (j_vue_robot - marge)) direction = "gauche";
   else direction = "milieu";
 
+  /* La direction est renvoyée */
   return direction;
 }
 
 
 int trouver_distance_objet(Objet objet, Image image) {
+  /* Initialisation de la distance à renvoyer */
   float distance_sur_image;
-  int distance_reelle_arrondi;
+  int distance_arrondie;
 
-  float x_vue_robot = get_largeur(image) / (float) 2;
-  float y_vue_robot = (float) get_hauteur(image);
+  /* Coordonnées (i, j) de la vue du robot */
+  float i_vue_robot = get_hauteur(image);
+  float j_vue_robot = get_largeur(image) / (float) 2;
 
-  float x_centre_objet = ( objet->x_dep + objet->x_arr ) / (float) 2;
-  float y_centre_objet = ( objet->y_dep + objet->y_arr ) / (float) 2;
+  /* Coordonnées (i, j) du centre de l'objet */
+  float i_centre_objet = (objet->i_min + objet->i_max) / (float) 2;
+  float j_centre_objet = (objet->j_min + objet->j_max) / (float) 2;
 
-  distance_sur_image = sqrt( pow((x_vue_robot-x_centre_objet), 2) + pow((y_vue_robot-y_centre_objet), 2) );
-  distance_reelle_arrondi = (int) roundf(distance_sur_image / 120); // arrondit à l'entier le plus proche
+  /* Calcul de la distance */
+  distance_sur_image = sqrt( pow(i_vue_robot - i_centre_objet, 2) + pow(j_vue_robot - j_centre_objet, 2) );
+  distance_arrondie = (int) roundf(distance_sur_image);  // arrondi à l'entier le plus proche
 
-  return distance_reelle_arrondi;
+  /* La distance (arrondie) est renvoyée */
+  return distance_arrondie;
 }
 
 
 int trouver_angle_objet(Objet objet, Image image) {
+  /* Initialisation de l'angle à renvoyer */
   float angle;
   int angle_arrondi;
 
-  float x_vue_robot = get_largeur(image) / (float) 2;
-  float x_centre_objet = ( objet->x_dep + objet->x_arr ) / (float) 2;
-  float valeur = (get_hauteur(image) - objet->y_dep) / ( abs(x_centre_objet-x_vue_robot) );
+  /* Coordonnées (i, j) de la vue du robot */
+  float i_vue_robot = get_hauteur(image);
+  float j_vue_robot = get_largeur(image) / (float) 2;
 
-  angle = atan(valeur);
+  /* Coordonnées (i, j) du centre de l'objet */
+  float i_centre_objet = (objet->i_min + objet->i_max) / (float) 2;
+  float j_centre_objet = (objet->j_min + objet->j_max) / (float) 2;
+
+  /* Calcul des côtés */
+  int cote_oppose = (int) fabsf( j_vue_robot - j_centre_objet );
+  int cote_adjacent = (int) fabsf( i_vue_robot - i_centre_objet );
+
+  /* Calcul de l'angle */
+  angle = atan(cote_oppose / (float) cote_adjacent);
   angle = angle * 180 / PI;  // pour passer du radian au degré
-  angle = 90 - angle;
-  
-  angle_arrondi = (int) roundf(angle); // arrondit à l'entier le plus proche
+  angle_arrondi = (int) roundf(angle);  // arrondi à l'entier le plus proche
 
+  /* L'angle (arrondi) est renvoyé */
   return angle_arrondi;
+}
+
+
+
+void commande_balle(const char* direction, int angle, int distance) {
+  FILE* f = fopen("data/action.txt", "w");
+  if (!f) return;
+
+  if (strcmp(direction, "milieu") == 0) {
+    int d = distance - 5;
+    fprintf(f, "\"advance\" %d \"meters\"", d);
+  }
+  else if (strcmp(direction, "gauche") == 0) {
+    fprintf(f, "turn left %d degrees advance %d meters", abs(angle), distance);
+  }
+  else if (strcmp(direction, "droite") == 0) {
+    fprintf(f, "\"turn\" \"right\" %d \"degrees\" \"advance\" %d \"meters\"", abs(angle), distance);
+  }
+
+  fclose(f);
+}
+
+
+void trouver_informations_balles(Image image) {
+  /* Ouverture du fichier informations_balles.txt */
+  FILE* f = fopen("data/informations_balles.txt", "w");
+  if (!f) return;
+
+  int i_centre_balle;
+  int j_centre_balle;
+
+  int nb_objets = nombre_objets_image(image);
+
+  /* Pour chaque objet de l'image */
+  for (int k=1 ; k<nb_objets+1 ; k++) {
+    Objet objet_courant = init_objet(k);
+
+    /* Trouve les coordonnées de l'objet courant */
+    trouver_coordonnees_objet(objet_courant, image);
+
+    /* Trouve la nature de l'objet courant pour ensuite vérifier si c'est une balle ou non */
+    trouver_nature_objet(objet_courant, image);
+
+    if (strcmp(objet_courant->nature_forme, "Cercle") == 0) {
+      /* Gère les coordonnées de la balle */
+      i_centre_balle = (objet_courant->i_min + objet_courant->i_max) / 2;
+      j_centre_balle = (objet_courant->j_min + objet_courant->j_max) / 2;
+      fprintf(f, "%d %d ", i_centre_balle, j_centre_balle);
+
+      /* Gère la couleur de la balle */
+      trouver_couleur_objet(objet_courant, image);
+
+      if (objet_courant->couleur == ROUGE) fprintf(f, "red\n");
+      else if (objet_courant->couleur == VERT) fprintf(f, "green\n");
+      else if (objet_courant->couleur == BLEU) fprintf(f, "blue\n");
+      else if (objet_courant->couleur == JAUNE) fprintf(f, "yellow\n");
+      else fprintf(f, "gray\n");
+    }
+  }
+
+  /* Fermeture du fichier */
+  fclose(f);
 }
 
 
@@ -348,44 +435,21 @@ char* get_nature_forme_objet(Objet objet) {
 }
 
 
-int get_x_dep(Objet objet) {
-  return objet->x_dep;
+int get_i_min(Objet objet) {
+  return objet->i_min;
 }
 
 
-int get_y_dep(Objet objet) {
-  return objet->y_dep;
+int get_j_min(Objet objet) {
+  return objet->j_min;
 }
 
 
-int get_x_arr(Objet objet) {
-  return objet->x_arr;
+int get_i_max(Objet objet) {
+  return objet->i_max;
 }
 
 
-int get_y_arr(Objet objet) {
-  return objet->y_arr;
-}
-
-
-void commande_balle(const char* direction, int angle, int distance)
-{
-  FILE* f = fopen("action.txt", "w");
-  if (!f) return;
-
-  if (strcmp(direction, "milieu") == 0)
-  {
-    int d = distance - 5;
-    fprintf(f, "\"advance\" %d \"meters\"", d);
-  }
-  else if (strcmp(direction, "gauche") == 0)
-  {
-    fprintf(f, "turn left %d degrees advance %d meters", abs(angle), distance);
-  }
-  else if (strcmp(direction, "droite") == 0)
-  {
-    fprintf(f, "\"turn\" \"right\" %d \"degrees\" \"advance\" %d \"meters\"", abs(angle), distance);
-  }
-
-  fclose(f);
+int get_j_max(Objet objet) {
+  return objet->j_max;
 }

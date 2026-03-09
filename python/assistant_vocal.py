@@ -1,57 +1,34 @@
 import speech_recognition as sr
-from gtts import gTTS
 
-FICHIER_COMMANDE = "commande.txt"
-LANGUE = "fr-FR"
+FICHIER_COMMANDE = "data/commande.txt"
 
-recognizer = sr.Recognizer()
-microphone = sr.Microphone()
-
-def normaliser_transcription(texte):
-    """
-    Nettoyage simple de la transcription
-    conforme au PFR
-    """
-    texte = texte.lower().strip()
-    tokens = texte.split()
-    print("Tokens :", tokens)
-    return " ".join(tokens)   # STRING pour le C
-
-def envoyer_texte_au_C(texte):
-    """
-    Envoi de la commande vers le module C
-    """
+def ecrire_commande(texte):
     with open(FICHIER_COMMANDE, "w", encoding="utf-8") as f:
-        f.write(texte)
-
-def text_to_speech(message):
-    """
-    Synthèse vocale (optionnelle PFR)
-    """
-    tts = gTTS(message, lang="fr")
-    tts.save("reponse.mp3")
+        f.write(texte + "\n")
 
 def main():
-    with microphone as source:
+    r = sr.Recognizer()
+
+    with sr.Microphone() as source:
         print("Speak!")
-        audio = recognizer.listen(source)
-        print("End!")
+        r.adjust_for_ambient_noise(source)
+        audio = r.listen(source)
 
     try:
-        transcription = recognizer.recognize_google(audio, language=LANGUE)
-        print("Vous avez dit :", transcription)
+        # reconnaissance vocale (Google)
+        texte = r.recognize_google(audio, language="fr-FR")
+        print("Vous avez dit :", texte)
+        ecrire_commande(texte)
+
     except sr.UnknownValueError:
-        print("Erreur : parole non reconnue")
-        return
-    except sr.RequestError:
-        print("Erreur : service indisponible")
-        return
+        print("[ERREUR] Je n'ai pas compris")
+        ecrire_commande("")
 
-    commande = normaliser_transcription(transcription)
-    envoyer_texte_au_C(commande)
+    except sr.RequestError as e:
+        print("[ERREUR] Problème API :", e)
+        ecrire_commande("")
 
-    text_to_speech("Commande envoyée.")
-
+    print("End!")
 
 if __name__ == "__main__":
     main()

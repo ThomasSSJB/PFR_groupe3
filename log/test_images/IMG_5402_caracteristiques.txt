@@ -1,0 +1,26 @@
+
+ --> Nombre de bits utilisés pour la quantification : 3
+
+===== Objet 1 =====
+Coordonnées de l'objet : de (64, 94) à (98, 131)
+Couleur : BLEU
+Forme : Cercle
+Direction : gauche
+Distance : 1.85 m
+Angle : 9.42 °
+
+===== Objet 2 =====
+Coordonnées de l'objet : de (98, 7) à (142, 54)
+Couleur : ROUGE
+Forme : Cercle
+Direction : gauche
+Distance : 1.80 m
+Angle : 44.98 °
+
+===== Objet 3 =====
+Coordonnées de l'objet : de (128, 234) à (176, 286)
+Couleur : JAUNE
+Forme : Cercle
+Direction : droite
+Distance : 1.54 m
+Angle : 44.98 °

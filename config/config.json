@@ -1,6 +1,6 @@
 {
     "parametres_generaux": {
-        "langue_actuelle": "en",
+        "langue_actuelle": "fr",
         "liste_langues": ["fr", "en", "es"],
         "mode_debug": true
     },
@@ -10,11 +10,10 @@
         "distance_max_m": 20
     },
     "image_detection": {
-        "couleurs": {
-            "rouge": { "intensite_min": 40 },
-            "vert": { "intensite_min": 40 },
-            "bleu": { "intensite_min": 40 },
-            "jaune": { "intensite_min": 40 }
+        "intentsite_couleur": {
+            "intensite_min_rouge": 40,
+            "intensite_min_vert": 40,
+            "intensite_min_bleu": 40
         },
         "formes": ["cercle", "rectangle", "triangle"],
         "quantification_bits": 3,

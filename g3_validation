@@ -1,0 +1,487 @@
+Script started on Mon Jan 26 09:21:48 2026
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(base) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hmmake clean[?2004l
+Aucun fichier .o à supprimer
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(base) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hcclcear[?2004l
+zsh: command not found: clcear
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(base) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hcclear[?2004l
+[H[2J[3J[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(base) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hmmake   m  cconda activate pfr_parole[?2004l
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(pfr_parole) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hlls[?2004l
+bin		config		doc		image		lib		Makefile	python
+commande.txt	data		g3_validation	include		log		PFR_groupe3	src
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(pfr_parole) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hmmzke   m make run[?2004l
+Compilation : src/main.c -> lib/main.o
+Compilation : src/commande_vocale.c -> lib/commande_vocale.o
+Compilation : src/image.c -> lib/image.o
+Compilation : src/objet.c -> lib/objet.o
+Compilation : src/config.c -> lib/config.o
+Compilation : src/utils.c -> lib/utils.o
+Exécutable généré : bin/prog_principal.out
+
+===== CHOIX DE L'IMAGE A TRAITER =====
+
+Entrer le numéro de l'image à charger (image recommandée : 5402)
+> 5402
+L'image IMG_5402.txt a été chargée.
+
+===== SYSTEME DE COMMANDE ROBOT =====
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3
+
+[SIMULATION] Lecture des actions...
+[SIMULATION] Aucune action
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 4
+
+Fin de la saisie des commandes.
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(pfr_parole) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hmmake run[?2004l
+
+===== CHOIX DE L'IMAGE A TRAITER =====
+
+Entrer le numéro de l'image à charger (image recommandée : 5402)
+> 5390
+L'image IMG_5390.txt a été chargée.
+
+===== SYSTEME DE COMMANDE ROBOT =====
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3
+
+[SIMULATION] Lecture des actions...
+[SIMULATION] Aucune action
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 1
+Entrez votre commande :
+> avanza de 40 m et gira à la derecha de 90 degros y recule de 60 m y gira a la izquierda de 80 degros           70 degros
+[TRACE] Phrase : avanza de 40 m et gira à la derecha de 90 degros y recule de 60 m y gira a la izquierda de 70 degros
+[ACTION] advance 40 meters
+[ACTION] turn right 90 degrees
+[ACTION] retreat 60 meters
+[ACTION] turn left 70 degrees
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3
+
+[SIMULATION] Lecture des actions...
+[SIMULATION] Actions terminées
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 4
+
+Fin de la saisie des commandes.
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(pfr_parole) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hmmake run[?2004l
+
+===== CHOIX DE L'IMAGE A TRAITER =====
+
+Entrer le numéro de l'image à charger (image recommandée : 5402)
+> 5402
+L'image IMG_5402.txt a été chargée.
+
+===== SYSTEME DE COMMANDE ROBOT =====
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 1
+Entrez votre commande :
+> recule de 100 m
+[TRACE] Phrase : recule de 100 m
+[ACTION] retreat 100 meters
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3
+
+[SIMULATION] Lecture des actions...
+[SIMULATION] Déplacement impossible : mur en approche !
+[SIMULATION] Actions terminées
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 1
+Entrez votre commande :
+> avance de 400 m et tourne à droite de 90 degres et avance de 500 m
+[TRACE] Phrase : avance de 400 m et tourne à droite de 90 degres et avance de 500 m
+[ACTION] advance 400 meters
+[ACTION] turn right 90 degrees
+[ACTION] advance 500 meters
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3
+
+[SIMULATION] Lecture des actions...
+[SIMULATION] Actions terminées
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 1
+Entrez votre commande :
+> avance et tourne  r 
+[TRACE] Phrase : avance et tourne
+[ACTION] advance 50 meters
+[ACTION] turn right 90 degrees
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2 2
+Speak!
+Vous avez dit : trouve la balle rouge
+End!
+[TRACE] Phrase : trouve la balle rouge
+[ACTION] find_ball red
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2
+Speak!
+[ERREUR] Je n'ai pas compris
+End!
+[TRACE] Phrase : 
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2
+Speak!
+Vous avez dit : find the blue balls
+End!
+[TRACE] Phrase : find the blue balls
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2
+Speak!
+Vous avez dit : the yellow ball
+End!
+[TRACE] Phrase : the yellow ball
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2
+Speak!
+[ERREUR] Je n'ai pas compris
+End!
+[TRACE] Phrase : 
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2
+Speak!
+[ERREUR] Je n'ai pas compris
+End!
+[TRACE] Phrase : 
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2
+Speak!
+Vous avez dit : ouvre la balle bleue
+End!
+[TRACE] Phrase : ouvre la balle bleue
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2
+Speak!
+Vous avez dit : la balle bleue
+End!
+[TRACE] Phrase : la balle bleue
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2
+Speak!
+Vous avez dit : s'il te plaît
+End!
+[TRACE] Phrase : s'il te plaît
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2
+Speak!
+Vous avez dit : s'il te plaît trouve la balle bleue
+End!
+[TRACE] Phrase : s'il te plaît trouve la balle bleue
+[ACTION] find_ball blue
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2
+Speak!
+Vous avez dit : ouvre la balle jaune
+End!
+[TRACE] Phrase : ouvre la balle jaune
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 2
+Speak!
+Vous avez dit : s'il te plaît trouve la balle jaune
+End!
+[TRACE] Phrase : s'il te plaît trouve la balle jaune
+[ACTION] find_ball yellow
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3
+
+[SIMULATION] Lecture des actions...
+[SIMULATION] Recherche de balle
+[SIMULATION] Balle atteinte : balle_red
+[SIMULATION] Recherche de balle
+[SIMULATION] Balle atteinte : balle_blue
+[SIMULATION] Recherche de balle
+[SIMULATION] Balle atteinte : balle_yellow
+[SIMULATION] Actions terminées
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 1
+Entrez votre commande :
+> avance puis s'ilc  te plais recule
+[TRACE] Phrase : avance puis s'il te plais recule
+[ACTION] advance 50 meters
+[ACTION] retreat 50 meters
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3
+
+[SIMULATION] Lecture des actions...
+[SIMULATION] Actions terminées
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 4
+
+Fin de la saisie des commandes.
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(pfr_parole) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hmmake clean[?2004l
+Dossier lib nettoyé
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(pfr_parole) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hmmake run[?2004l
+Compilation : src/main.c -> lib/main.o
+Compilation : src/commande_vocale.c -> lib/commande_vocale.o
+Compilation : src/image.c -> lib/image.o
+Compilation : src/objet.c -> lib/objet.o
+Compilation : src/config.c -> lib/config.o
+Compilation : src/utils.c -> lib/utils.o
+Exécutable généré : bin/prog_principal.out
+
+===== CHOIX DE L'IMAGE A TRAITER =====
+
+Entrer le numéro de l'image à charger (image recommandée : 5402)
+> 5389
+L'image IMG_5389.txt a été chargée.
+
+===== SYSTEME DE COMMANDE ROBOT =====
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3
+
+[SIMULATION] Lecture des actions...
+[SIMULATION] Aucune action
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 4
+
+Fin de la saisie des commandes.
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(pfr_parole) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hmmake clean[?2004l
+Dossier lib nettoyé
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(pfr_parole) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hmmam  a mmakz run    e run[?2004l
+Compilation : src/main.c -> lib/main.o
+Compilation : src/commande_vocale.c -> lib/commande_vocale.o
+Compilation : src/image.c -> lib/image.o
+Compilation : src/objet.c -> lib/objet.o
+Compilation : src/config.c -> lib/config.o
+Compilation : src/utils.c -> lib/utils.o
+Exécutable généré : bin/prog_principal.out
+
+===== CHOIX DE L'IMAGE A TRAITER =====
+
+Entrer le numéro de l'image à charger (image recommandée : 5402)
+> 4 5406
+L'image IMG_5406.txt a été chargée.
+
+===== SYSTEME DE COMMANDE ROBOT =====
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3
+
+[SIMULATION] Lecture des actions...
+[SIMULATION] Aucune action
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3 1
+Entrez votre commande :
+> trouve la balle rouge
+[TRACE] Phrase : trouve la balle rouge
+[ACTION] find_ball red
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3
+
+[SIMULATION] Lecture des actions...
+[SIMULATION] Recherche de balle
+[SIMULATION] Aucune balle dans l'environnement
+[SIMULATION] Actions terminées
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 1
+Entrez votre commande :
+> avance de 10 m et ne recule pas
+[TRACE] Phrase : avance de 10 m et ne recule pas
+[ACTION] advance 10 meters
+[ACTION] retreat 50 meters
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 1
+Entrez votre commande :
+> avance de 40 m
+[TRACE] Phrase : avance de 40 m
+[ACTION] advance 40 meters
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 3
+
+[SIMULATION] Lecture des actions...
+[SIMULATION] Déplacement impossible : mur en approche !
+[SIMULATION] Déplacement impossible : mur en approche !
+[SIMULATION] Actions terminées
+
+-----  Menu  des commandes  -----
+1- Ecrire une commande (clavier)
+2- Parler (commande vocale)
+3- Lancer la simulation (turtle)
+4- Arreter le programme
+-> Choix : 4
+
+Fin de la saisie des commandes.
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(pfr_parole) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004hccat action.txt[?2004l
+cat: action.txt: No such file or directory
+[1m[7m%[27m[1m[0m                                                                                                                  ]7;file://MacBook-Air-de-Yahyaoui.local/Users/nidal/Desktop/projetPFR/PFR_groupe3[0m[27m[24m[J(pfr_parole) nidal@MacBook-Air-de-Yahyaoui PFR_groupe3 % [K[?2004heexit[?2004l
+
+Saving session...
+...copying shared history...
+...saving history...truncating history files...
+...completed.
+
+Script done on Mon Jan 26 10:01:53 2026

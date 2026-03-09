@@ -1,3 +1,8 @@
+/* FICHIER: test_json.c
+*  AUTEUR: DEVAUD Antoine
+*  RÔLE: Permet de tester les différentes fonctions de lectures des JSON
+**/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

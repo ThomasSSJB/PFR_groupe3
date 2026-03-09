@@ -1,3 +1,8 @@
+/* FICHIER: config.h
+*  AUTEUR: GRELET Thomas (basé sur le travail de DEVAUD Antoine dans test_json.c)
+*  RÔLE: Déclaration des fonctions de chargement et de lecture de fichiers JSON
+**/
+
 #ifndef CONFIG_H
 #define CONFIG_H
 

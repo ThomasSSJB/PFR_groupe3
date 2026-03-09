@@ -1,178 +1,225 @@
 import turtle
 import time
-from robot import Robot   # classe Robot 
+import os
+import math
+from robot import Robot
+import environnement
 
-# Configuration générale
+# ======================================================
+# CHEMIN VERS action.txt
+# ======================================================
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FICHIER_ACTION = os.path.join(BASE_DIR, "..", "data/action.txt")
 
-f= open("action.txt","r")
-FICHIER_ACTION = "action.txt"
+# ======================================================
+# PARAMÈTRES
+# ======================================================
 
+PAS_DISTANCE = 5
+PAS_ANGLE = 5
+DELAI_ANIM = 0.02
 
-# Mouvement global (une action)
-DISTANCE = 80      # distance totale pour AVANCE
-ANGLE = 90         # angle total pour GAUCHE / DROITE
+# ======================================================
+# MAPPING COULEURS (VOIX → ENVIRONNEMENT)
+# ======================================================
 
-# Animation progressive
-PAS_DISTANCE = 5   # déplacement par pas
-PAS_ANGLE = 5      # rotation par pas
-DELAI_ANIM = 0.02  # délai entre chaque pas (plus petit = plus rapide)
+COLOR_MAP = {
+    "red": "rouge",
+    "blue": "bleu",
+    "yellow": "jaune",
+    "green": "vert"
+}
 
-DELAI_LECTURE = 0.1  # délai entre deux lectures de action.txt
-ACTIONS = {"advance", "retreat", "turn", "stop"}
+# ======================================================
+# LECTURE ACTIONS
+# ======================================================
 
-def decouper_commandes(mots):
-    mots = [m for m in mots if m != "link"]
-
-    commandes = []
-    courante = []
-
-    for mot in mots:
-        if mot in ACTIONS:
-            if courante:
-                commandes.append(courante)
-            courante = [mot]
-        else:
-            courante.append(mot)
-
-    if courante:
-        commandes.append(courante)
-
-    return commandes
-
-
-
-
-
-def lire_action():
-    """Lit l'action envoyée par le programme C."""
+def lire_actions():
+    if not os.path.exists(FICHIER_ACTION):
+        return []
     with open(FICHIER_ACTION, "r", encoding="utf-8") as f:
-        mots = f.read().split()
+        return [l.strip() for l in f if l.strip()]
 
-    print(mots)
-    return mots
+def effacer_actions():
+    open(FICHIER_ACTION, "w").close()
 
+# ======================================================
+# MOUVEMENTS
+# ======================================================
 
-def effacer_action():
-    """Efface l'action après traitement."""
-    open(FICHIER_ACTION, "r").close()
+def avancer_progressif(robot, env, distance, sens=1):
+    reste = distance
+    while reste > 0 and not detecter_mur(robot, env):
+        pas = min(PAS_DISTANCE, reste)
+        robot.t.forward(pas if sens == 1 else -pas)
+        reste -= pas
+        time.sleep(DELAI_ANIM)
 
-
-def tourner(robot, mots):
-    """Gère l'action tourner avec direction et angle."""
-    direction = None
-    if "left" in mots or "gauche" in mots:
-        direction = "left"
-    elif "right" in mots or "droite" in mots:
-        direction = "right"
-    if direction:
-        angle = ANGLE
-        for word in mots:
-            if word.isdigit():
-                angle = int(word)
-                break
-        angle_restant = angle
-        while angle_restant > 0:
-            pas = min(PAS_ANGLE, angle_restant)
-            robot.tourner(pas, direction)
-            angle_restant -= pas
-            time.sleep(DELAI_ANIM)
-
-
-def appliquer_actions(mots, robot):
-    commandes = decouper_commandes(mots)
-
-    for cmd in commandes:
-        action = cmd[0]
-        params = cmd[1:]
-
-        if action == "advance":
-            if params:
-                if params[0] == "to" and len(params) >= 3 and params[1].isdigit() and params[2].isdigit():
-                    x = int(params[1])
-                    y = int(params[2])
-                    robot.aller_a(x, y)
-                elif params[0].isdigit():
-                    if len(params) >= 2 and params[1] == "meters":
-                        distance = int(params[0])
-                        robot.avancer(distance)
-                    else:
-                        print("[ERREUR] advance attend 'meters' après la distance")
-                        continue
-                else:
-                    robot.avancer(DISTANCE)
-            else:
-                robot.avancer(DISTANCE)
-
-
-
-
-        elif action == "retreat":
-            distance = DISTANCE
-            for p in params:
-                if p.isdigit():
-                    distance = int(p)
-                    break
-            robot.reculer(distance)
-
-        elif action == "turn":
-            direction = None
-            if "left" in params:
-                direction = "left"
-            elif "right"in params:
-                direction = "right"
-
-            if direction:
-                angle = ANGLE
-                for p in params:
-                    if p.isdigit():
-                        angle = int(p)
-                        break
-                robot.tourner(angle, direction)
-
-        elif action == "stop":
-            print("[SIMULATION] Arrêt demandé")
-            return False
-
+def tourner_progressif(robot, angle, direction):
+    reste = angle
+    while reste > 0:
+        pas = min(PAS_ANGLE, reste)
+        if direction == "left":
+            robot.t.left(pas)
         else:
-            print(f"[SIMULATION] Action inconnue : {action}")
+            robot.t.right(pas)
+        reste -= pas
+        time.sleep(DELAI_ANIM)
 
+def detecter_ouverture(robot, env):
+    rx, ry = robot.t.position()
+    for ouv in env["ouvertures"]:
+        ouvx, ouvy = ouv["pos_porte"]
+        if ((abs(rx - ouvx) < 25) or (abs(ry - ouvy) < 25)):
+            return True
+    return False
+
+def detecter_mur(robot, env):
+    marge = 40
+    
+    rx, ry = robot.t.position()
+    envx, envy = env["dimensions"]
+
+    envx //= 2
+    envy //= 2
+
+    if (rx > (envx-marge) or rx < (-envx+marge) or ry > (envy-marge) or ry < (-envy+marge)) and not detecter_ouverture(robot, env):
+        print("[SIMULATION] Déplacement impossible : mur en approche !")
+        return True
+    else:
+        return False
+
+
+# ======================================================
+# FIND BALL (CORRIGÉ)
+# ======================================================
+
+def chercher_balle(robot, env, couleur=None):
+    print("[SIMULATION] Recherche de balle")
+
+    balles = env.get("obstacles", [])
+
+    # print("[SIMULATION - TRACE] balles =", balles)
+
+    if not balles:
+        print("[SIMULATION] Aucune balle dans l'environnement")
+        return
+
+    # Traduction couleur EN → FR
+    # print("[SIMULATION - TRACE] AVANT -> couleur =", couleur)
+    # if couleur:
+    #     couleur = COLOR_MAP.get(couleur, couleur)
+    # print("[SIMULATION - TRACE] APRES -> couleur =", couleur)
+
+    rx, ry = robot.t.position()
+    cible = None
+    dist_min = float("inf")
+
+    for b in balles:
+        nom = b["nom"]          # ex: balle_rouge
+        bx, by = b["centre"]
+
+        bx += 15
+        by -= 15
+
+        if couleur and couleur not in nom:
+            continue
+
+        dist = math.hypot(bx - rx, by - ry) - 30
+
+        if dist < dist_min:
+            dist_min = dist
+            cible = b
+
+    if not cible:
+        print("[SIMULATION] Aucune balle correspondante")
+        return
+
+    bx, by = cible["centre"]
+
+    bx += 15
+    by -= 15
+
+    dx = bx - rx
+    dy = by - ry
+
+    angle = math.degrees(math.atan2(dy, dx))
+    robot.t.setheading(angle)
+
+    avancer_progressif(robot, env, int(dist_min))
+
+    robot.t.dot(14, cible["couleur"])
+    print(f"[SIMULATION] Balle atteinte : {cible['nom']}")
+
+# ======================================================
+# APPLICATION ACTION
+# ======================================================
+
+def appliquer_action(ligne, robot, env):
+    parts = ligne.split()
+    action = parts[0]
+
+    if action == "advance":
+        if len(parts) > 2 and parts[1] == "to":
+            robot.aller_a(int(parts[2]), int(parts[3]))
+        else:
+            avancer_progressif(robot, env, int(parts[1]))
+
+    elif action == "retreat":
+        avancer_progressif(robot, env, int(parts[1]), sens=-1)
+
+    elif action == "turn":
+        tourner_progressif(robot, int(parts[2]), parts[1])
+
+    elif action == "find_ball":
+        if len(parts) > 1:
+            chercher_balle(robot, env, parts[1])
+        else:
+            chercher_balle(robot, env)
+
+    elif action == "stop":
+        return False
+
+    else:
+        print(f"[SIMULATION] Action inconnue : {ligne}")
+
+    robot.t.dot(6, "red")
     return True
 
+# ======================================================
+# MAIN
+# ======================================================
 
+def main(env):
+    screen = turtle.Screen()
+    screen.title("Simulation Robot – PFR")
+    screen.bgcolor("white")
+    screen.tracer(0)
 
+    environnement.tracer_environnement(env)
 
+    robot = Robot(start_x=0, start_y=-250, initial_heading=90)
 
+    print("\n[SIMULATION] Lecture des actions...")
+    actions = lire_actions()
 
-def main():
-    # Vérifier si une fenêtre existe déjà
-    try:
-        screen = turtle.Screen()
-    except:
-        screen = turtle.Screen()
-        screen.title("Simulation Robot – Commande Vocale")
-        screen.bgcolor("white")
-    
-    #screen = turtle.Screen()
-    #screen.title("Simulation Robot – Commande Vocale")
-    #screen.bgcolor("white")
+    if not actions:
+        print("[SIMULATION] Aucune action")
+        turtle.mainloop()
+        return
 
-    robot = Robot()
-    print("[SIMULATION] En attente de commandes vocales...")
+    for act in actions:
+        if not appliquer_action(act, robot, env):
+            break
+        screen.update()
 
-    en_cours = True
+    effacer_actions()
+    print("[SIMULATION] Actions terminées")
 
-    while en_cours:
-        action = lire_action()
+    turtle.mainloop()
 
-        if action:
-            print(f"[SIMULATION] Action reçue : {action}")
-            en_cours = appliquer_actions(action, robot)
-            effacer_action()   
-
-        time.sleep(DELAI_LECTURE)
-
-    turtle.exitonclick()
 
 if __name__ == "__main__":
-    main()
+    env = environnement.initialiser_environnement()
+    main(env)

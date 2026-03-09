@@ -1,3 +1,8 @@
+/* FICHIER: config.c
+*  AUTEUR: GRELET Thomas (basé sur le travail de DEVAUD Antoine dans test_json.c)
+*  RÔLE: Définition des fonctions de chargement et de lecture de fichiers JSON
+**/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
