@@ -11,6 +11,7 @@ LDFLAGS = -lm
 # ================= EXECUTION =================
 # Lance le programme principal
 run: bin/prog_principal.out
+	
 	@./bin/prog_principal.out
 
 # Lance le programme de traitement d'image

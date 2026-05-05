@@ -3,6 +3,7 @@ import time
 import os
 import cv2
 import numpy as np
+import math as m
 
 # Configuration des chemins
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -58,14 +59,13 @@ def detecter_balle(couleur):
     chemin_detectee = os.path.join(BASE_DIR, "..", "data/photo_detectee.jpg")
     
     # Ouvrir caméra
-    cap = cv2.VideoCapture(0)
     time.sleep(0.3)  # laisser la caméra s'initialiser
     
-    ret, frame = cap.read()
+    ret = os.system(f"rpicam-jpeg -o {chemin_brute}")
     
-    if ret:
+    if ret != 1:
         # Sauvegarde image brute
-        cv2.imwrite(chemin_brute, frame)
+        frame = cv2.imread(chemin_brute)
         print(f"[ROBOT] 📷 Photo brute sauvegardée: {chemin_brute}")
         
         # Conversion HSV
@@ -111,7 +111,6 @@ def detecter_balle(couleur):
                 cv2.imwrite(chemin_detectee, frame)
                 print(f"[ROBOT] 📸 Photo avec détection sauvegardée: {chemin_detectee}")
                 
-                cap.release()
                 return (cx, cy, radius)
             else:
                 print("[ROBOT] ⚠ Objet trop petit")
@@ -120,35 +119,35 @@ def detecter_balle(couleur):
     else:
         print("[ROBOT] ❌ Erreur capture caméra")
     
-    cap.release()
     return None
 
 
-def envoyer_position_balle(cx, cy, frame_width=640, frame_height=480):
+def envoyer_position_balle(cx, cy, radius, frame_width=3280, frame_height=2464):
     """
     Envoie des commandes au robot en fonction de la position de la balle.
     - Si au centre : envoyer '1' (5s - avancer)
     - Si à gauche : envoyer '4' (0.2s - tourner gauche)
     - Si à droite : envoyer '5' (0.2s - tourner droite)
     """
-    # Diviser l'écran en 3 zones horizontales (gauche, centre, droite)
-    zones_x = frame_width // 3
-    
-    col = cx // zones_x  # 0=gauche, 1=centre, 2=droite
-    
-    if col == 1:  # Balle au centre
-        print(f"[ROBOT] Balle au CENTRE (x={cx}) → '1' pendant 5s")
-        envoyer_arduino('1', duree=5)
-    elif col == 0:  # Balle à gauche
-        print(f"[ROBOT] Balle à GAUCHE (x={cx}) → '4' pendant 0.2s")
-        envoyer_arduino('4', duree=0.2)
-    else:  # col == 2, balle à droite
-        print(f"[ROBOT] Balle à DROITE (x={cx}) → '5' pendant 0.2s")
-        envoyer_arduino('5', duree=0.2)
-    
-    # Reprendre une photo après le mouvement
-    time.sleep(0.5)
-    print("[ROBOT] Reprise de photo...\n")
+    angle = m.atan( abs(frame_width//2 - cx) / abs(frame_height-cy) )
+    angle = angle * 180 / 3.14159265 * 1.05
+    duree_t = 0.65/90 * angle
+
+    distance = 87 / radius - 0.15
+    duree_a = ((distance - 0.65)/0.77)+1
+
+    print(f"[IMAGE] cx = {cx}, cy = {cy}, angle = {angle}, duree_t = {duree_t}")
+    print(f"[IMAGE] radius = {radius}, distance = {distance}, duree_a = {duree_a}")
+
+    envoyer_arduino('6', duree=0.1)
+    if cx > (frame_width//2) :   # droite
+        print("[ROBOT] Tourne à droite")
+        envoyer_arduino('5', duree_t)
+    else:   # gauche
+        print("[ROBOT] Tourne à gauche")
+        envoyer_arduino('4', duree_t)
+    envoyer_arduino('7', duree=0.1)
+    envoyer_arduino('1', duree_a)
 
 
 
@@ -167,56 +166,34 @@ def main():
 
         if action == "advance":
             distance = parts[1]
-            duree=(int((distance)-0.65)/0.77)+1
+            duree=((int(distance)-0.65)/0.77)+1
             envoyer_arduino('1', duree) # '1' pour avancer
+            time.sleep(0.5)
         elif action == "retreat":
             distance = parts[1]
-            duree=(int((distance)-0.65)/0.77)+1
+            duree=((int(distance)-0.65)/0.77)+1
             envoyer_arduino('2', duree) # '2' pour reculer
+            time.sleep(0.5)
         elif action == "turn":
+            angle = parts[2]
+            duree = 1.15/90 * int(angle)
             envoyer_arduino('6', duree=0.1) 
             if parts[1] == "left":
-                envoyer_arduino('4', duree=1.2) # '4' pour gauche
+                envoyer_arduino('4', duree) # '4' pour gauche
             else:
-                envoyer_arduino('5', duree=1.2) # '5' pour droite
+                envoyer_arduino('5', duree) # '5' pour droite
             envoyer_arduino('7', duree=0.1)
         elif action == "find_ball":
             # Récupérer la couleur de la balle
             couleur = parts[1] if len(parts) > 1 else "red"
             print(f"[ROBOT] Recherche balle {couleur}...")
             
-            max_iterations = 10  # Limite pour éviter boucle infinie
-            iteration = 0
-            balle_centree = False
-            
-            while iteration < max_iterations and not balle_centree:
-                iteration += 1
-                print(f"[ROBOT] Itération {iteration}/{max_iterations}")
-                
-                # Détecter la balle
-                resultat = detecter_balle(couleur)
-                
-                if resultat:
-                    cx, cy, radius = resultat
-                    
-                    # Vérifier si la balle est au centre
-                    zones_x = 640 // 3
-                    col = cx // zones_x
-                    
-                    if col == 1:  # Balle au centre
-                        print(f"[ROBOT] ✓ Balle {couleur} trouvée et centrée!")
-                        envoyer_position_balle(cx, cy)
-                        balle_centree = True
-                    else:  # Balle pas au centre
-                        # Envoyer la position et faire un mouvement
-                        envoyer_position_balle(cx, cy)
-                else:
-                    print(f"[ROBOT] Impossible de détecter la balle {couleur}")
-                    envoyer_arduino('0', duree=0.1)  # Code d'erreur
-                    break
-            
-            if not balle_centree and iteration >= max_iterations:
-                print(f"[ROBOT] Nombre d'itérations atteint ({max_iterations})")
+            resultat = detecter_balle(couleur)
+            if resultat:
+                 cx, cy, radius = resultat
+                 envoyer_position_balle(cx, cy, radius)
+            else:
+                 print(f"[ROBOT] Impossible de détecter la balle {couleur}.")
 
         elif action == "stop":
             envoyer_arduino('3', duree=0.1) # '3' pour stop

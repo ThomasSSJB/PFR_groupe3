@@ -1,66 +1,32 @@
-# =======================EN TÊTE=====================================
-# FICHIER: assistant_vocal.py
-# AUTEUR: YAHYAOUI Nidal
-# RÔLE: Implémentation d'un assistant vocal pour capturer les commandes vocales
-#       et les écrire dans un fichier texte pour une utilisation ultérieure.
-# ===================================================================
-
-import speech_recognition as sr
-
-FICHIER_COMMANDE = "data/commande.txt"
-
-def ecrire_commande(texte):
-    with open(FICHIER_COMMANDE, "w", encoding="utf-8") as f:
-        f.write(texte + "\n")
-import serial
+import os
 import time
 
-arduino = serial.Serial('/dev/ttyACM0', 9600)
-time.sleep(2)
+# Chemin vers le fichier commande (écrit par ton PC via SSH)
+FICHIER_COMMANDE = "/home/pfr3/code/PFR_groupe3/data/commande.txt"
 
-def envoyer_action():
-    with open("data/action.txt", "r") as f:
-        lines = f.readlines()
+def lire_commande():
+    """Attend que le PC écrive une commande dans commande.txt"""
+    print(">>> En attente de commande vocale depuis le PC...")
+    print(">>> Lance test_voix.py sur ton PC maintenant !")
+    
+    # Vider le fichier d'abord
+    open(FICHIER_COMMANDE, "w").close()
+    
+    # Attendre que le PC écrive dedans (max 30 secondes)
+    for _ in range(60):
+        time.sleep(0.5)
+        if os.path.exists(FICHIER_COMMANDE):
+            with open(FICHIER_COMMANDE, "r", encoding="utf-8") as f:
+                contenu = f.read().strip()
+            if contenu:
+                print(f"[VOCAL] Commande reçue : {contenu}")
+                return contenu
+    
+    print("[VOCAL] Timeout : aucune commande reçue.")
+    return ""
 
-    if not lines:
-        return
-
-    derniere = lines[-1].strip()
-    print("Action envoyée :", derniere)
-
-    if "advance" in derniere:
-        arduino.write(b'1')
-    elif "retreat" in derniere:
-        arduino.write(b'2')
-    elif "left" in derniere:
-        arduino.write(b'3')
-    elif "right" in derniere:
-        arduino.write(b'4')
-    elif "turn" in derniere:
-        arduino.write(b'5')
 def main():
-    r = sr.Recognizer()
-
-    with sr.Microphone() as source:
-        print("Speak!")
-        r.adjust_for_ambient_noise(source)
-        audio = r.listen(source)
-
-    try:
-        # reconnaissance vocale (Google)
-        texte = r.recognize_google(audio, language="fr-FR")
-        print("Vous avez dit :", texte)
-        ecrire_commande(texte)
-
-    except sr.UnknownValueError:
-        print("[ERREUR] Je n'ai pas compris")
-        ecrire_commande("")
-
-    except sr.RequestError as e:
-        print("[ERREUR] Problème API :", e)
-        ecrire_commande("")
-    envoyer_action()
-    print("End!")
+    lire_commande()
 
 if __name__ == "__main__":
     main()

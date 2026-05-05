@@ -1,28 +1,38 @@
+import sys
 import time
 from rplidar import RPLidar
 
-PORT_NAME = '/dev/ttyUSB0'
+PORT = '/dev/ttyUSB0'
 
 def run():
-    lidar = RPLidar(PORT_NAME)
-    info = lidar.get_info()
-    print(f"Lidar connecté : {info}")
+    sys.stdout.reconfigure(line_buffering=True)
+
+    lidar = RPLidar(PORT, baudrate=115200)
 
     try:
-        lidar.start_motor()
-        print('Récupération des distances (Ctrl+C pour stopper)...')
-        for scan in lidar.iter_scans():
-            for (quality, angle, distance) in scan:
-                if distance > 0:
-                    print(f"Angle: {angle:3.2f}° | Distance: {distance:4.2f} mm")
+        print("Lidar init...", file=sys.stderr)
 
-    except KeyboardInterrupt:
-        print('Arrêt...')
+        lidar.stop()
+        lidar.stop_motor()
+        time.sleep(0.5)
+
+        lidar.start_motor()
+        time.sleep(1)
+
+        lidar.clean_input()
+
+        for scan in lidar.iter_scans():
+            for (_, angle, distance) in scan:
+                if 100 < distance < 6000:  # filtre bruit
+                    sys.stdout.write(f"{angle:.2f},{distance:.1f}\n")
+
+    except Exception as e:
+        print(f"Erreur Lidar: {e}", file=sys.stderr)
 
     finally:
         lidar.stop()
         lidar.stop_motor()
         lidar.disconnect()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()
