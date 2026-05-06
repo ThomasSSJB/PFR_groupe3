@@ -7,7 +7,6 @@ PORT = '/dev/ttyUSB0'
 def run():
     sys.stdout.reconfigure(line_buffering=True)
 
-    lidar = RPLidar(PORT, baudrate=115200)
 
     try:
         print("Lidar init...", file=sys.stderr)
