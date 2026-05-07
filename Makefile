@@ -1,24 +1,22 @@
 # ================ EN TÊTE ================
 # FICHIER: Makefile
 # AUTEURS: GRELET Thomas, YAHYAOUI Nidal
-# RÔLE: Compiler l'ensemble des fichiers compilables pour en créer des exécutables
+# RÔLE: Compiler l'ensemble des fichiers compilables
+# MODIF: Ajout de -lpthread pour le thread de surveillance web
 
 # ================= CONFIG =================
 CC      = gcc
-CFLAGS  = -Wall -Wextra -Iinclude -lm
-LDFLAGS = -lm
+CFLAGS  = -Wall -Wextra -Iinclude -lm -lpthread
+LDFLAGS = -lm -lpthread
 
 # ================= EXECUTION =================
-# Lance le programme principal
 run: bin/prog_principal.out
-	
 	@./bin/prog_principal.out
 
-# Lance le programme de traitement d'image
 image: bin/prog_image.out
 	@./bin/prog_image.out
 
-# ================= LINKING (Création des exécutables) =================
+# ================= LINKING =================
 bin/prog_principal.out: lib/main.o lib/commande_vocale.o lib/image.o lib/objet.o lib/config.o lib/utils.o
 	@$(CC) lib/main.o lib/commande_vocale.o lib/image.o lib/objet.o lib/config.o lib/utils.o -o bin/prog_principal.out $(CFLAGS)
 	@echo "Exécutable généré : bin/prog_principal.out"
@@ -27,7 +25,7 @@ bin/prog_image.out: lib/main_image.o lib/image.o lib/objet.o lib/config.o lib/ut
 	@$(CC) lib/main_image.o lib/image.o lib/objet.o lib/config.o lib/utils.o -o bin/prog_image.out $(CFLAGS)
 	@echo "Exécutable généré : bin/prog_image.out"
 
-# ================= COMPILATION (Création des objets) =================
+# ================= COMPILATION =================
 lib/main.o: src/main.c
 	@$(CC) -c src/main.c -o lib/main.o $(CFLAGS)
 	@echo "Compilation : src/main.c -> lib/main.o"
@@ -58,12 +56,7 @@ lib/utils.o: src/utils.c
 
 # ================= NETTOYAGE =================
 clean:
-	@if ls lib/*.o 1> /dev/null 2>&1; then \
-		rm lib/*.o; \
-		echo "Dossier lib nettoyé"; \
-	else \
-		echo "Aucun fichier .o à supprimer"; \
-	fi
+	@if ls lib/*.o 1> /dev/null 2>&1; then rm lib/*.o; echo "lib nettoyé"; else echo "Rien à supprimer"; fi
 
 fclean: clean
 	@rm -f bin/*.out

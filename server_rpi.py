@@ -82,8 +82,7 @@ def init_camera():
     print("[CAMERA] Démarrage rpicam-vid...")
     cmd = [
         "rpicam-vid", "-t", "0", "--codec", "mjpeg",
-        "--nopreview", "--width", "640", "--height", "480",
-        "--framerate", "25", "-o", "-"
+        "--nopreview", "-o", "-"
     ]
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -174,13 +173,28 @@ def recevoir_signal():
         subprocess.Popen(["python3", "python/pilote_robot.py"], cwd=BASE_DIR)
         return jsonify({"statut": "ok"})
 
-    elif signal == "simulation":
-        print("[WEB] Lancement simulation (comme option 3 du menu)")
-        subprocess.Popen(["python3", "python/simulation.py"], cwd=BASE_DIR)
-        return jsonify({"statut": "ok"})
 
     return jsonify({"erreur": "signal inconnu"}), 400
 
+
+@app.route("/lidar_log")
+def lidar_log():
+    """Stream la sortie de display_map.py en temps reel."""
+    def generer():
+        cmd = ". ~/code/PFR_groupe3/venv/bin/activate && python3 python/scan_lidar.py | python3 python/display_map.py"
+        proc = subprocess.Popen(
+            cmd, shell=True, cwd=BASE_DIR,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT  # melange stdout + stderr
+        )
+        for line in iter(proc.stdout.readline, b""):
+            yield f"data: {line.decode().rstrip()}\n\n"
+        proc.wait()
+        yield "data: [TERMINE]\n\n"
+
+    return Response(generer(), mimetype="text/event-stream",
+                    headers={"Cache-Control": "no-cache",
+                             "X-Accel-Buffering": "no"})
 # ── Joystick → Arduino direct
 @app.route("/joystick", methods=["POST"])
 def joystick():
@@ -263,8 +277,27 @@ def status():
 @app.route("/reset", methods=["POST"])
 def reset():
     open(ACTION_FILE, "w").close()
+    open(ACTION_FILE, "w").close()
     envoyer_arduino("3")
     return jsonify({"statut": "reset ok"})
+
+@app.route("/carte")
+def carte():
+    """Sert la carte LiDAR sauvegardée dans data/lidar_map.png"""
+    from flask import send_file
+    carte_path = os.path.join(BASE_DIR, "data/lidar_map.png")
+    
+    cmd = (
+        ". ~/code/PFR_groupe3/venv/bin/activate && "
+        "python3 python/scan_lidar.py | "
+        "python3 python/display_map.py"
+    )
+
+    subprocess.run(cmd, shell=True, cwd=BASE_DIR)
+    
+    if not os.path.exists(carte_path):
+        return jsonify({"carte non disponible"}), 404
+    return send_file(carte_path, mimetype="image/png")
 
 # ============================================================
 # MAIN
