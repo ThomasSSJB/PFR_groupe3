@@ -77,12 +77,26 @@ def envoyer_arduino(octet: str):
 camera_lock   = threading.Lock()
 current_frame = None
 
+camera_active = True
+
+@app.route("/camera_pause", methods=["POST"])
+def camera_pause():
+    global camera_active
+    camera_active = False
+    return jsonify({"statut": "ok"})
+
+@app.route("/camera_resume", methods=["POST"])  
+def camera_resume():
+    global camera_active
+    camera_active = True
+    return jsonify({"statut": "ok"})
 def init_camera():
     global current_frame
     print("[CAMERA] Démarrage rpicam-vid...")
     cmd = [
         "rpicam-vid", "-t", "0", "--codec", "mjpeg",
-        "--nopreview", "-o", "-"
+        "--nopreview", "--width", "1640", "--height", "1232",
+        "--framerate", "15", "-o", "-"
     ]
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -123,11 +137,12 @@ def _camera_demo():
 
 def generate_mjpeg():
     while True:
-        with camera_lock:
-            frame = current_frame
-        if frame:
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        if camera_active:
+            with camera_lock:
+                frame = current_frame
+            if frame:
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
         time.sleep(0.04)
 
 # ============================================================
