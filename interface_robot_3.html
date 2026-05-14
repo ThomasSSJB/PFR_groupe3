@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Robot PFR</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;600;800&display=swap');
+  :root {
+    --bg:#090b0f;--panel:#0d1117;--border:#1a2535;--accent:#00e5ff;
+    --red:#ff3d71;--green:#39ff14;--warn:#ffaa00;--text:#c8d8e8;--dim:#3a5060;
+    --glow:0 0 14px rgba(0,229,255,0.3);--glow-red:0 0 14px rgba(255,61,113,0.4);
+    --glow-grn:0 0 14px rgba(57,255,20,0.4);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:linear-gradient(rgba(0,229,255,0.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,229,255,0.025) 1px,transparent 1px);background-size:40px 40px}
+  header{position:relative;z-index:10;display:flex;align-items:center;justify-content:space-between;
+    padding:12px 20px;border-bottom:1px solid var(--border);background:rgba(9,11,15,0.97)}
+  .logo{font-family:'Share Tech Mono',monospace;font-size:1rem;letter-spacing:3px;color:var(--accent)}
+  .logo span{color:var(--red)}
+  .status-bar{display:flex;gap:18px;align-items:center;font-family:'Share Tech Mono',monospace;font-size:0.68rem}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--dim);display:inline-block;margin-right:5px;transition:background 0.3s}
+  .dot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
+  .dot.err{background:var(--red);box-shadow:0 0 6px var(--red)}
+  main{position:relative;z-index:1;display:grid;grid-template-columns:1fr 320px;gap:14px;
+    padding:14px 18px;max-width:1100px;margin:0 auto}
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .panel-title{font-family:'Share Tech Mono',monospace;font-size:0.63rem;letter-spacing:2px;
+    color:var(--dim);text-transform:uppercase;padding:9px 14px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;gap:6px}
+  .panel-title::before{content:'▸';color:var(--accent)}
+  #camera-panel{grid-column:1;grid-row:1/5}
+  .cam-wrap{position:relative;background:#050709}
+  #cam-img{width:100%;height:auto;display:none}
+  .cam-corners{position:absolute;inset:0;pointer-events:none;background:
+    linear-gradient(var(--accent),var(--accent)) top left/18px 2px no-repeat,
+    linear-gradient(var(--accent),var(--accent)) top left/2px 18px no-repeat,
+    linear-gradient(var(--accent),var(--accent)) top right/18px 2px no-repeat,
+    linear-gradient(var(--accent),var(--accent)) top right/2px 18px no-repeat,
+    linear-gradient(var(--accent),var(--accent)) bottom left/18px 2px no-repeat,
+    linear-gradient(var(--accent),var(--accent)) bottom left/2px 18px no-repeat,
+    linear-gradient(var(--accent),var(--accent)) bottom right/18px 2px no-repeat,
+    linear-gradient(var(--accent),var(--accent)) bottom right/2px 18px no-repeat}
+  .cam-offline{min-height:240px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:10px;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:0.78rem}
+  .live-badge{position:absolute;top:10px;right:12px;font-family:'Share Tech Mono',monospace;
+    font-size:0.62rem;color:var(--red);display:flex;align-items:center;gap:5px;opacity:0;transition:opacity 0.3s}
+  .live-badge.on{opacity:1;animation:blink 1.2s infinite}
+  .live-dot{width:6px;height:6px;border-radius:50%;background:var(--red)}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+  .carte-wrap{padding:10px 14px;display:none}
+  .carte-wrap.visible{display:block}
+  #carte-img{width:100%;border-radius:6px;border:1px solid var(--border)}
+  .carte-titre{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--dim);
+    text-align:center;margin-bottom:6px;letter-spacing:2px}
+  .lidar-terminal{display:none;margin:0 14px 14px;background:#000;border:1px solid var(--border);
+    border-radius:6px;padding:10px;max-height:180px;overflow-y:auto;
+    font-family:'Share Tech Mono',monospace;font-size:0.68rem;color:var(--green);line-height:1.5}
+  .lidar-terminal.visible{display:block}
+  .lidar-terminal::-webkit-scrollbar{width:3px}
+  .lidar-terminal::-webkit-scrollbar-thumb{background:var(--border)}
+  .right-col{grid-column:2;display:flex;flex-direction:column;gap:14px}
+  .joy-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:7px;padding:14px}
+  .btn-joy{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--text);
+    font-size:1.2rem;padding:13px 0;cursor:pointer;transition:all 0.1s;user-select:none;-webkit-user-select:none}
+  .btn-joy:hover{border-color:var(--accent);color:var(--accent);box-shadow:var(--glow);background:rgba(0,229,255,0.05)}
+  .btn-joy:active,.btn-joy.pressed{background:rgba(0,229,255,0.14);border-color:var(--accent);transform:scale(0.92)}
+  .btn-stop{background:rgba(255,61,113,0.08)!important;border-color:var(--red)!important;
+    color:var(--red)!important;font-size:0.58rem!important;font-family:'Share Tech Mono',monospace;letter-spacing:2px}
+  .btn-stop:hover{box-shadow:var(--glow-red)!important}
+  .extra-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:0 14px 14px}
+  .btn-extra{background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--dim);
+    font-family:'Share Tech Mono',monospace;font-size:0.68rem;padding:9px 0;cursor:pointer;
+    transition:all 0.15s;letter-spacing:1px}
+  .btn-extra:hover{border-color:var(--warn);color:var(--warn);background:rgba(255,170,0,0.06)}
+  .action-btns{display:flex;flex-direction:column;gap:8px;padding:14px}
+  #btn-robot{width:100%;padding:16px;background:rgba(57,255,20,0.08);border:1px solid var(--green);
+    border-radius:8px;color:var(--green);font-family:'Exo 2',sans-serif;font-weight:800;font-size:1rem;
+    cursor:pointer;letter-spacing:2px;text-transform:uppercase;transition:all 0.2s;
+    display:flex;align-items:center;justify-content:center;gap:10px}
+  #btn-robot:hover{background:rgba(57,255,20,0.18);box-shadow:var(--glow-grn)}
+  #btn-robot:active{transform:scale(0.97)}
+  #btn-robot.running{animation:pulse-robot 0.8s infinite}
+  @keyframes pulse-robot{0%,100%{box-shadow:var(--glow-grn)}50%{box-shadow:0 0 28px rgba(57,255,20,0.7)}}
+  .btn-action-sm{width:100%;padding:10px;background:transparent;border:1px solid var(--border);
+    border-radius:7px;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:0.72rem;
+    cursor:pointer;letter-spacing:1px;transition:all 0.2s;text-align:center}
+  .btn-action-sm:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,0.06)}
+  #btn-aspir{border-color:var(--accent);color:var(--accent)}
+  #btn-aspir.active{border-color:var(--green);color:var(--green);background:rgba(57,255,20,0.08);
+    animation:pulse-aspir 1s infinite}
+  @keyframes pulse-aspir{0%,100%{box-shadow:var(--glow-grn)}50%{box-shadow:0 0 20px rgba(57,255,20,0.6)}}
+  .voice-area{padding:14px;display:flex;flex-direction:column;gap:10px}
+  #btn-micro{width:100%;padding:14px;background:transparent;border:1px solid var(--border);
+    border-radius:7px;color:var(--text);font-family:'Exo 2',sans-serif;font-weight:600;font-size:0.85rem;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:all 0.2s;letter-spacing:1px}
+  #btn-micro:hover{border-color:var(--accent);color:var(--accent);box-shadow:var(--glow)}
+  #btn-micro.rec{border-color:var(--red);color:var(--red);box-shadow:var(--glow-red);animation:pulse-rec 0.9s infinite}
+  @keyframes pulse-rec{0%,100%{box-shadow:var(--glow-red)}50%{box-shadow:0 0 26px rgba(255,61,113,0.65)}}
+  #stt-box{font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--accent);min-height:34px;
+    padding:7px 10px;background:rgba(0,229,255,0.04);border:1px solid var(--border);border-radius:5px;word-break:break-word}
+  #stt-box.err{color:var(--red);background:rgba(255,61,113,0.04)}
+  .text-area{display:flex;gap:7px;padding:12px 14px}
+  #cmd-input{flex:1;background:rgba(0,229,255,0.04);border:1px solid var(--border);border-radius:6px;
+    color:var(--text);font-family:'Share Tech Mono',monospace;font-size:0.75rem;
+    padding:9px 11px;outline:none;transition:border 0.2s}
+  #cmd-input:focus{border-color:var(--accent)}
+  #cmd-input::placeholder{color:var(--dim)}
+  #btn-send{background:var(--accent);border:none;border-radius:6px;color:#000;
+    font-family:'Exo 2',sans-serif;font-weight:800;font-size:0.7rem;padding:9px 14px;
+    cursor:pointer;letter-spacing:1px;transition:opacity 0.2s}
+  #btn-send:hover{opacity:0.82}
+  .log-area{padding:9px 13px;max-height:120px;overflow-y:auto;display:flex;flex-direction:column-reverse;gap:3px}
+  .log-area::-webkit-scrollbar{width:3px}
+  .log-area::-webkit-scrollbar-thumb{background:var(--border)}
+  .log-entry{font-family:'Share Tech Mono',monospace;font-size:0.67rem;display:flex;gap:7px;
+    animation:fadeIn 0.25s forwards;opacity:0}
+  @keyframes fadeIn{to{opacity:1}}
+  .lt{color:var(--dim);flex-shrink:0}.lok{color:var(--green)}.lerr{color:var(--red)}
+  .linf{color:var(--accent)}.lwrn{color:var(--warn)}
+  .ip-area{display:flex;align-items:center;gap:7px;padding:10px 14px;border-top:1px solid var(--border)}
+  #rpi-ip{flex:1;background:transparent;border:1px solid var(--border);border-radius:4px;color:var(--text);
+    font-family:'Share Tech Mono',monospace;font-size:0.72rem;padding:6px 9px;outline:none}
+  #rpi-ip:focus{border-color:var(--accent)}
+  #btn-conn{background:transparent;border:1px solid var(--accent);border-radius:4px;color:var(--accent);
+    font-family:'Share Tech Mono',monospace;font-size:0.67rem;padding:6px 11px;
+    cursor:pointer;letter-spacing:1px;transition:all 0.2s}
+  #btn-conn:hover{background:rgba(0,229,255,0.1)}
+  @media(max-width:700px){
+    main{grid-template-columns:1fr;padding:8px;gap:10px}
+    #camera-panel{grid-column:1;grid-row:1}
+    .right-col{grid-column:1;grid-row:2}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">PFR // <span>ROBOT</span></div>
+  <div class="status-bar">
+    <span><span class="dot" id="d-srv"></span>SERVEUR</span>
+    <span><span class="dot" id="d-ard"></span>ARDUINO</span>
+    <span><span class="dot" id="d-cam"></span>CAMÉRA</span>
+    <span id="heure" style="color:var(--dim)">--:--:--</span>
+  </div>
+</header>
+
+<main>
+  <!-- CAMÉRA -->
+  <div class="panel" id="camera-panel">
+    <div class="panel-title">FLUX CAMÉRA</div>
+    <div class="cam-wrap">
+      <div class="cam-offline" id="cam-off">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+          <path d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
+          <line x1="2" y1="2" x2="22" y2="22" stroke-width="2"/>
+        </svg>
+        Connecte-toi au serveur RPi
+      </div>
+      <img id="cam-img" alt="flux caméra" onload="onCamOk()" onerror="onCamErr()">
+      <div class="cam-corners"></div>
+      <div class="live-badge" id="live"><div class="live-dot"></div>LIVE</div>
+    </div>
+    <div class="carte-wrap" id="carte-wrap">
+      <div class="carte-titre">▸ CARTE LIDAR / DÉTECTION</div>
+      <img id="carte-img" alt="carte lidar">
+    </div>
+    <div class="lidar-terminal" id="lidar-term"></div>
+  </div>
+
+  <!-- DROITE -->
+  <div class="right-col">
+
+    <!-- JOYSTICK -->
+    <div class="panel">
+      <div class="panel-title">JOYSTICK (→ Arduino direct)</div>
+      <div class="joy-grid">
+        <div></div>
+        <button class="btn-joy" data-oct="1" title="Avancer [↑]">▲</button>
+        <div></div>
+        <button class="btn-joy" data-oct="4" title="Gauche [←]">◀</button>
+        <button class="btn-joy btn-stop" data-oct="3" title="Stop [Espace]">STOP</button>
+        <button class="btn-joy" data-oct="5" title="Droite [→]">▶</button>
+        <div></div>
+        <button class="btn-joy" data-oct="2" title="Reculer [↓]">▼</button>
+        <div></div>
+      </div>
+      <div class="extra-btns">
+        <button class="btn-extra" data-oct="6">SPD +</button>
+        <button class="btn-extra" data-oct="7">SPD -</button>
+        <button class="btn-extra" data-oct="8">📯 BIP</button>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="panel">
+      <div class="panel-title">ACTIONS (→ main.c)</div>
+      <div class="action-btns">
+        <button id="btn-robot" onclick="lancerRobot()">🤖 LANCER LE ROBOT</button>
+        <button class="btn-action-sm" id="btn-aspir" onclick="toggleAspirateur()">⚙ MODE ASPIRATEUR</button>
+        <button class="btn-action-sm" onclick="lancerLidar()">📡 CARTOGRAPHIE LIDAR</button>
+        <button class="btn-action-sm" onclick="resetRobot()" style="border-color:var(--red);color:var(--red);">⛔ ARRÊT FORCÉ</button>
+      </div>
+    </div>
+
+    <!-- MICRO -->
+    <div class="panel">
+      <div class="panel-title">COMMANDE VOCALE (→ commande.txt → main.c)</div>
+      <div class="voice-area">
+        <button id="btn-micro" onclick="toggleMicro()">
+          <span>🎤</span><span id="micro-lbl">APPUYER POUR PARLER</span>
+        </button>
+        <div id="stt-box">En attente...</div>
+      </div>
+    </div>
+
+    <!-- TEXTE -->
+    <div class="panel">
+      <div class="panel-title">COMMANDE TEXTE (→ commande.txt → main.c)</div>
+      <div class="text-area">
+        <input id="cmd-input" type="text"
+               placeholder="avance 50 / tourne gauche / trouve balle rouge..."
+               onkeydown="if(event.key==='Enter') envoyerTexte()">
+        <button id="btn-send" onclick="envoyerTexte()">ENVOYER</button>
+      </div>
+    </div>
+
+    <!-- LOG -->
+    <div class="panel">
+      <div class="panel-title">JOURNAL</div>
+      <div class="log-area" id="log"></div>
+    </div>
+
+    <!-- IP -->
+    <div class="panel">
+      <div class="panel-title">CONNEXION RPi</div>
+      <div class="ip-area">
+        <input id="rpi-ip" type="text" placeholder="192.168.x.x:5000" value="172.20.10.8:5000">
+        <button id="btn-conn" onclick="connecter()">CONNECTER</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+let SERVER    = "http://172.20.10.8:5000";
+let statusTmr = null;
+let lidarES   = null;
+let aspirActif   = false;
+let findBallActif = false;
+let photoInterval = null;
+
+// CONNEXION
+function connecter() {
+  const ip = document.getElementById("rpi-ip").value.trim();
+  if (!ip) return;
+  SERVER = ip.startsWith("http") ? ip : "http://" + ip;
+  log("Connexion à " + SERVER, "inf");
+  lancerCam();
+  startStatusPoll();
+}
+function lancerCam() {
+  const img = document.getElementById("cam-img");
+  img.src = SERVER + "/video?" + Date.now();
+  img.style.display = "block";
+  document.getElementById("cam-off").style.display = "none";
+}
+function onCamOk() {
+  document.getElementById("d-cam").className = "dot on";
+  document.getElementById("live").className = "live-badge on";
+  log("Flux caméra connecté", "ok");
+}
+function onCamErr() {
+  document.getElementById("d-cam").className = "dot err";
+  document.getElementById("live").className = "live-badge";
+  document.getElementById("cam-off").style.display = "flex";
+  document.getElementById("cam-img").style.display = "none";
+}
+function startStatusPoll() {
+  if (statusTmr) clearInterval(statusTmr);
+  statusTmr = setInterval(async () => {
+    try {
+      const r = await fetch(SERVER + "/status", { signal: AbortSignal.timeout(2000) });
+      const d = await r.json();
+      document.getElementById("d-srv").className = "dot on";
+      document.getElementById("d-ard").className = d.arduino_connecte ? "dot on" : "dot err";
+      document.getElementById("heure").textContent = d.heure;
+      verifierEtat();
+    } catch { document.getElementById("d-srv").className = "dot err"; }
+  }, 2000);
+}
+
+// DÉTECTION FIND_BALL
+async function verifierEtat() {
+  try {
+    const r = await fetch(SERVER + "/etat");
+    const d = await r.json();
+    if (d.find_ball && !findBallActif) {
+      findBallActif = true;
+      document.getElementById("cam-img").style.display = "none";
+      document.getElementById("live").className = "live-badge";
+      log("Détection balle " + d.couleur + " — affichage photos", "wrn");
+      demarrerAffichagePhotos();
+    } else if (!d.find_ball && findBallActif) {
+      findBallActif = false;
+      arreterAffichagePhotos();
+      lancerCam();
+      log("Détection terminée — caméra live reprise", "ok");
+    }
+  } catch(e) {}
+}
+function demarrerAffichagePhotos() {
+  const wrap = document.getElementById("carte-wrap");
+  const img  = document.getElementById("carte-img");
+  wrap.classList.add("visible");
+  photoInterval = setInterval(() => {
+    img.src = SERVER + "/photo_detection?" + Date.now();
+  }, 1000);
+}
+function arreterAffichagePhotos() {
+  if (photoInterval) { clearInterval(photoInterval); photoInterval = null; }
+  document.getElementById("carte-wrap").classList.remove("visible");
+}
+
+// JOYSTICK
+let joyInterval = null;
+document.querySelectorAll(".btn-joy, .btn-extra").forEach(btn => {
+  btn.addEventListener("mousedown",  () => joyDown(btn));
+  btn.addEventListener("mouseup",    () => joyUp(btn));
+  btn.addEventListener("mouseleave", () => joyUp(btn));
+  btn.addEventListener("touchstart", e => { e.preventDefault(); joyDown(btn); });
+  btn.addEventListener("touchend",   e => { e.preventDefault(); joyUp(btn); });
+});
+function joyDown(btn) {
+  btn.classList.add("pressed");
+  const oct = btn.dataset.oct;
+  if (!oct) return;
+  envoyerOctet(oct);
+  if (oct === "1" || oct === "2") joyInterval = setInterval(() => envoyerOctet(oct), 250);
+}
+function joyUp(btn) {
+  btn.classList.remove("pressed");
+  if (joyInterval) { clearInterval(joyInterval); joyInterval = null; }
+}
+async function envoyerOctet(octet) {
+  try {
+    const r = await fetch(SERVER + "/joystick", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ octet })
+    });
+    const d = await r.json();
+    log("Joystick → " + d.action + " (Arduino direct)", "ok");
+  } catch(e) { log("Erreur joystick : " + e.message, "err"); }
+}
+
+// COMMANDE TEXTE
+async function envoyerTexte() {
+  const inp = document.getElementById("cmd-input");
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = "";
+  log("Texte → commande.txt : " + txt, "inf");
+  try {
+    const r = await fetch(SERVER + "/commande", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texte: txt })
+    });
+    const d = await r.json();
+    if (d.statut === "ok") log("→ main.c va traiter la commande", "ok");
+    else log("Erreur serveur", "err");
+  } catch(e) { log("Erreur réseau : " + e.message, "err"); }
+}
+
+// LANCER ROBOT
+async function lancerRobot() {
+  const btn = document.getElementById("btn-robot");
+  btn.classList.add("running");
+  log("Lancement robot → pilote_robot.py", "wrn");
+  try {
+    const r = await fetch(SERVER + "/signal", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "lancer_robot" })
+    });
+    const d = await r.json();
+    if (d.statut === "ok") log("→ pilote_robot.py lancé", "ok");
+    else log("Erreur signal", "err");
+  } catch(e) { log("Erreur : " + e.message, "err"); }
+  setTimeout(() => btn.classList.remove("running"), 3000);
+}
+
+// MODE ASPIRATEUR
+async function toggleAspirateur() {
+  const btn   = document.getElementById("btn-aspir");
+  const octet = aspirActif ? "3" : "10";
+  aspirActif  = !aspirActif;
+  btn.classList.toggle("active", aspirActif);
+  btn.textContent = aspirActif ? "⚙ ASPIRATEUR ON" : "⚙ MODE ASPIRATEUR";
+  log("Mode aspirateur " + (aspirActif ? "ON" : "OFF"), "inf");
+  await envoyerOctet(octet);
+}
+
+// ARRÊT FORCÉ
+async function resetRobot() {
+  aspirActif = false;
+  const btn = document.getElementById("btn-aspir");
+  btn.classList.remove("active");
+  btn.textContent = "⚙ MODE ASPIRATEUR";
+  log("Arrêt forcé → reset total", "err");
+  try {
+    const r = await fetch(SERVER + "/reset", { method: "POST" });
+    const d = await r.json();
+    if (d.statut === "reset ok") log("→ Robot stoppé, fichiers vidés", "ok");
+  } catch(e) { log("Erreur reset : " + e.message, "err"); }
+}
+
+// CARTOGRAPHIE LIDAR
+async function afficherCarte() {
+  const wrap = document.getElementById("carte-wrap");
+  const img  = document.getElementById("carte-img");
+  img.src = SERVER + "/carte?" + Date.now();
+  img.onload  = () => { wrap.classList.add("visible"); log("Carte LiDAR affichée", "ok"); };
+  img.onerror = () => { log("Carte non disponible", "err"); };
+}
+function lancerLidar() {
+  const term = document.getElementById("lidar-term");
+  term.innerHTML = "";
+  term.classList.add("visible");
+  log("Lancement cartographie LiDAR...", "inf");
+  if (lidarES) { lidarES.close(); lidarES = null; }
+  lidarES = new EventSource(SERVER + "/lidar_log");
+  lidarES.onmessage = e => {
+    if (e.data === "[TERMINE]") {
+      lidarES.close(); lidarES = null;
+      log("Cartographie terminée", "ok");
+      afficherCarte();
+      return;
+    }
+    const line = document.createElement("div");
+    line.textContent = e.data;
+    term.appendChild(line);
+    term.scrollTop = term.scrollHeight;
+  };
+  lidarES.onerror = () => { lidarES.close(); lidarES = null; log("Erreur stream LiDAR", "err"); };
+}
+
+// MICRO
+let mediaRec = null, chunks = [], recOn = false;
+async function toggleMicro() { recOn ? stopMicro() : await startMicro(); }
+async function startMicro() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    chunks = [];
+    mediaRec = new MediaRecorder(stream, { mimeType: "audio/webm;codecs=opus" });
+    mediaRec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    mediaRec.onstop = () => { stream.getTracks().forEach(t => t.stop()); envoyerAudio(); };
+    mediaRec.start(100);
+    recOn = true;
+    document.getElementById("btn-micro").className = "rec";
+    document.getElementById("micro-lbl").textContent = "ENREGISTREMENT... (RE-APPUYER POUR ENVOYER)";
+    document.getElementById("stt-box").textContent = "🔴 Enregistrement...";
+    document.getElementById("stt-box").className = "";
+    log("Micro activé", "inf");
+  } catch(e) { log("Micro refusé : " + e.message, "err"); }
+}
+function stopMicro() {
+  if (mediaRec && mediaRec.state !== "inactive") mediaRec.stop();
+  recOn = false;
+  document.getElementById("btn-micro").className = "";
+  document.getElementById("micro-lbl").textContent = "ENVOI EN COURS...";
+}
+async function envoyerAudio() {
+  const blob = new Blob(chunks, { type: "audio/webm" });
+  log("Audio " + (blob.size/1024).toFixed(1) + " Ko → STT", "inf");
+  const fd = new FormData();
+  fd.append("audio", blob, "audio.webm");
+  try {
+    const r = await fetch(SERVER + "/audio", { method: "POST", body: fd });
+    const d = await r.json();
+    if (d.texte) {
+      document.getElementById("stt-box").textContent = "💬 " + d.texte;
+      document.getElementById("stt-box").className = "";
+      log('STT: "' + d.texte + '" → commande.txt → main.c', "ok");
+    } else if (d.statut === "incompris") {
+      document.getElementById("stt-box").textContent = "⚠ Incompris, réessaie";
+      document.getElementById("stt-box").className = "err";
+      log("STT: non reconnu", "err");
+    }
+  } catch(e) { log("Erreur audio : " + e.message, "err"); }
+  document.getElementById("micro-lbl").textContent = "APPUYER POUR PARLER";
+}
+
+// CLAVIER
+document.addEventListener("keydown", e => {
+  if (document.activeElement === document.getElementById("cmd-input")) return;
+  const map = { "ArrowUp":"1","ArrowDown":"2","ArrowLeft":"4","ArrowRight":"5"," ":"3" };
+  if (map[e.key]) { e.preventDefault(); envoyerOctet(map[e.key]); }
+});
+
+// LOG
+function log(msg, t = "inf") {
+  const area = document.getElementById("log");
+  const el = document.createElement("div");
+  el.className = "log-entry";
+  const h = new Date();
+  const ts = [h.getHours(), h.getMinutes(), h.getSeconds()].map(n => String(n).padStart(2,'0')).join(':');
+  el.innerHTML = '<span class="lt">' + ts + '</span><span class="l' + t + '">' + msg + '</span>';
+  area.prepend(el);
+  while (area.children.length > 60) area.removeChild(area.lastChild);
+}
+
+log("Interface prête. Entre l'IP de la RPi et clique CONNECTER.", "inf");
+log("IMPORTANT : make run doit tourner sur la RPi en parallèle !", "wrn");
+</script>
+</body>
+</html>
