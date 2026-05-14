@@ -10,7 +10,6 @@ def run():
 
     sys.stdout.reconfigure(line_buffering=True)
 
-    lidar = RPLidar(PORT, baudrate=115200)
 
     try:
         print("▶  Connexion au LiDAR...", file=sys.stderr)

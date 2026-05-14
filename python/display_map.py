@@ -23,7 +23,11 @@ import numpy as np
 import cv2
 import matplotlib
 
+<<<<<<< HEAD
+matplotlib.use('Agg')
+=======
 matplotlib.use('TkAgg')
+>>>>>>> a5247464 (ajout du lidar)
 
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
@@ -431,4 +435,8 @@ plt.savefig(
 
 print(f"Carte sauvegardée : {SAVE_PATH}", file=sys.stderr)
 
+<<<<<<< HEAD
+plt.close()
+=======
 plt.show()
+>>>>>>> a5247464 (ajout du lidar)

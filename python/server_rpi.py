@@ -5,15 +5,18 @@ RÔLE: Serveur web Flask sur Raspberry Pi 3B
 
 PRINCIPE :
   - /commande  → écrit dans data/commande.txt
-                 main.c thread détecte → traiter_commande() → action.txt
-  - /signal    → Flask appelle directement pilote_robot.py ou simulation.py
-                 (comme taper 4 ou 3 dans le menu terminal)
+  - /signal    → Flask appelle directement pilote_robot.py
   - /joystick  → envoie directement l'octet à l'Arduino
   - /audio     → STT → écrit dans data/commande.txt
-  - /video     → flux Pi Camera MJPEG
+  - /video     → flux Pi Camera MJPEG (rpicam-vid)
+  - /snapshot  → retourne le dernier frame (utilisé par pilote_robot.py)
+  - /carte     → sert data/lidar_map.png
+  - /lidar_log → stream sortie LiDAR en temps réel
+  - /reset     → stop Arduino + vide action.txt
 """
 
 import os
+import io
 import time
 import threading
 import subprocess
@@ -48,6 +51,7 @@ CORS(app)
 # ============================================================
 
 arduino = None
+pilote_process = None
 
 def connecter_arduino():
     global arduino
@@ -77,19 +81,6 @@ def envoyer_arduino(octet: str):
 camera_lock   = threading.Lock()
 current_frame = None
 
-camera_active = True
-
-@app.route("/camera_pause", methods=["POST"])
-def camera_pause():
-    global camera_active
-    camera_active = False
-    return jsonify({"statut": "ok"})
-
-@app.route("/camera_resume", methods=["POST"])  
-def camera_resume():
-    global camera_active
-    camera_active = True
-    return jsonify({"statut": "ok"})
 def init_camera():
     global current_frame
     print("[CAMERA] Démarrage rpicam-vid...")
@@ -137,17 +128,39 @@ def _camera_demo():
 
 def generate_mjpeg():
     while True:
-        if camera_active:
-            with camera_lock:
-                frame = current_frame
-            if frame:
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        with camera_lock:
+            frame = current_frame
+        if frame:
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
         time.sleep(0.04)
 
 # ============================================================
 # ROUTES
 # ============================================================
+
+@app.route("/etat")
+def etat():
+    try:
+        with open(ACTION_FILE, "r") as f:
+            contenu = f.read()
+        if "find_ball" in contenu:
+            couleur = ""
+            for ligne in contenu.splitlines():
+                if "find_ball" in ligne:
+                    parts = ligne.split()
+                    couleur = parts[1] if len(parts) > 1 else ""
+            return jsonify({"find_ball": True, "couleur": couleur})
+    except: pass
+    return jsonify({"find_ball": False, "couleur": ""})
+
+@app.route("/photo_detection")
+def photo_detection():
+    from flask import send_file
+    photo_path = os.path.join(BASE_DIR, "data/photo_brute.jpg")
+    if not os.path.exists(photo_path):
+        return jsonify({"erreur": "pas de photo"}), 404
+    return send_file(photo_path, mimetype="image/jpeg")
 
 @app.route("/")
 def index():
@@ -157,6 +170,19 @@ def index():
 def video_feed():
     return Response(generate_mjpeg(),
                     mimetype="multipart/x-mixed-replace; boundary=frame")
+
+@app.route("/snapshot")
+def snapshot():
+    """
+    Retourne le dernier frame JPEG du streaming.
+    Utilisé par pilote_robot.py pour prendre une photo
+    SANS interrompre le streaming caméra.
+    """
+    with camera_lock:
+        frame = current_frame
+    if not frame:
+        return jsonify({"erreur": "pas de frame disponible"}), 404
+    return Response(frame, mimetype="image/jpeg")
 
 # ── Commande texte → commande.txt → main.c thread → traiter_commande()
 @app.route("/commande", methods=["POST"])
@@ -174,7 +200,7 @@ def recevoir_commande():
 
     return jsonify({"statut": "ok"})
 
-# ── Lancer robot / simulation → subprocess direct (comme option 4 / 3 du menu)
+# ── Lancer robot → subprocess direct (comme option 4 du menu)
 @app.route("/signal", methods=["POST"])
 def recevoir_signal():
     data = request.get_json()
@@ -185,31 +211,12 @@ def recevoir_signal():
 
     if signal == "lancer_robot":
         print("[WEB] Lancement robot (comme option 4 du menu)")
-        subprocess.Popen(["python3", "python/pilote_robot.py"], cwd=BASE_DIR)
-        return jsonify({"statut": "ok"})
+        pilote_process = subprocess.Popen(["python3", "python/pilote_robot.py"], cwd=BASE_DIR)
 
+        return jsonify({"statut": "ok"})
 
     return jsonify({"erreur": "signal inconnu"}), 400
 
-
-@app.route("/lidar_log")
-def lidar_log():
-    """Stream la sortie de display_map.py en temps reel."""
-    def generer():
-        cmd = ". ~/code/PFR_groupe3/venv/bin/activate && python3 python/scan_lidar.py | python3 python/display_map.py"
-        proc = subprocess.Popen(
-            cmd, shell=True, cwd=BASE_DIR,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT  # melange stdout + stderr
-        )
-        for line in iter(proc.stdout.readline, b""):
-            yield f"data: {line.decode().rstrip()}\n\n"
-        proc.wait()
-        yield "data: [TERMINE]\n\n"
-
-    return Response(generer(), mimetype="text/event-stream",
-                    headers={"Cache-Control": "no-cache",
-                             "X-Accel-Buffering": "no"})
 # ── Joystick → Arduino direct
 @app.route("/joystick", methods=["POST"])
 def joystick():
@@ -291,8 +298,13 @@ def status():
 
 @app.route("/reset", methods=["POST"])
 def reset():
+    global pilote_process
+    if pilote_process and pilote_process.poll() is None:
+        pilote_process.kill()
+        pilote_process = None
+        print("[RESET] forcement de l'arret du robot")
     open(ACTION_FILE, "w").close()
-    open(ACTION_FILE, "w").close()
+    open(CMD_FILE, "w").close()
     envoyer_arduino("3")
     return jsonify({"statut": "reset ok"})
 
@@ -301,18 +313,30 @@ def carte():
     """Sert la carte LiDAR sauvegardée dans data/lidar_map.png"""
     from flask import send_file
     carte_path = os.path.join(BASE_DIR, "data/lidar_map.png")
-    
-    cmd = (
-        ". ~/code/PFR_groupe3/venv/bin/activate && "
-        "python3 python/scan_lidar.py | "
-        "python3 python/display_map.py"
-    )
-
-    subprocess.run(cmd, shell=True, cwd=BASE_DIR)
-    
     if not os.path.exists(carte_path):
-        return jsonify({"carte non disponible"}), 404
+        return jsonify({"erreur": "carte non disponible"}), 404
     return send_file(carte_path, mimetype="image/png")
+
+@app.route("/lidar_log")
+def lidar_log():
+    """Stream la sortie du LiDAR en temps réel (Server-Sent Events)"""
+    def generer():
+        cmd = (". ~/code/PFR_groupe3/venv/bin/activate && "
+               "python3 python/scan_lidar.py | "
+               "python3 python/display_map.py")
+        proc = subprocess.Popen(
+            cmd, shell=True, cwd=BASE_DIR,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
+        for line in iter(proc.stdout.readline, b""):
+            yield f"data: {line.decode().rstrip()}\n\n"
+        proc.wait()
+        yield "data: [TERMINE]\n\n"
+
+    return Response(generer(), mimetype="text/event-stream",
+                    headers={"Cache-Control": "no-cache",
+                             "X-Accel-Buffering": "no"})
 
 # ============================================================
 # MAIN
