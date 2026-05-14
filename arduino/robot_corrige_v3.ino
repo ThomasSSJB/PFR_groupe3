@@ -1,3 +1,8 @@
+/* FICHIER: robot_corrige_v3.ino
+*  AUTEUR: DEVAUD Antoine
+*  RÔLE: *à remplir*
+**/
+
 c#include <AFMotor_R4.h>
 
 #define trigPin      30

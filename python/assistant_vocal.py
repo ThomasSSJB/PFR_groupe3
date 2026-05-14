@@ -1,7 +1,14 @@
+# =======================EN TÊTE=====================================
+# FICHIER: assistant_vocal.py
+# AUTEUR: BACHAA Hajar
+# RÔLE: Lecture et réception des commandes vocales transmises 
+#       par le PC via SSH
+# ===================================================================
+
 import os
 import time
 
-# Chemin vers le fichier commande (écrit par ton PC via SSH)
+# Chemin vers le fichier commande (écrit par le PC via SSH)
 FICHIER_COMMANDE = "/home/pfr3/code/PFR_groupe3/data/commande.txt"
 
 def lire_commande():

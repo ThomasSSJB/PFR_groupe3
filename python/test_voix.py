@@ -1,3 +1,9 @@
+# =======================EN TÊTE=====================================
+# FICHIER: test_voix.py
+# AUTEUR: BACHAA Hajar
+# RÔLE: Permet de tester la commande vocale
+# ===================================================================
+
 import speech_recognition as sr
 import subprocess
 

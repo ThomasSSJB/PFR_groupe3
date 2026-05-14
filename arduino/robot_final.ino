@@ -1,10 +1,11 @@
 /*
- * FICHIER: robot_final.ino
- * BASE:    robot_corrige_v31.ino (version la plus récente du projet)
- * MODIF:   Lecture des commandes sur Serial (USB/RPi) ET Serial1 (Bluetooth)
- *          La RPi envoie via câble USB → Serial
- *          Le téléphone/BT envoie via module HC-05 → Serial1
- */
+* FICHIER: robot_final.ino
+* AUTEUR: DEVAUD Antoine
+* BASE: robot_corrige_v31.ino (version la plus récente du projet)
+* MODIF: Lecture des commandes sur Serial (USB/RPi) ET Serial1 (Bluetooth)
+*        La RPi envoie via câble USB → Serial
+*        Le téléphone/BT envoie via module HC-05 → Serial1
+**/
 
 #include <AFMotor_R4.h>
 

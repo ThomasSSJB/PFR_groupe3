@@ -1,3 +1,13 @@
+# =======================EN TÊTE=====================================
+# FICHIER: pilote_robot.py
+# AUTEURS: BACHAA Hajar, BEN LTAIF Yasmine, DEVAUD Antoine, 
+#          GRELET Thomas, YAHYAOUI Nidal
+# RÔLE: Pilotage du robot via Arduino
+#   - Gestion des déplacements 
+#   - Détection de balle par vision (OpenCV) 
+#   - Exécution des actions reçues
+# ===================================================================
+
 import serial
 import time
 import os

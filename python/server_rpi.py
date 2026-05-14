@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-"""
-FICHIER: server_rpi.py
-RÔLE: Serveur web Flask sur Raspberry Pi 3B
 
-PRINCIPE :
-  - /commande  → écrit dans data/commande.txt
-  - /signal    → Flask appelle directement pilote_robot.py
-  - /joystick  → envoie directement l'octet à l'Arduino
-  - /audio     → STT → écrit dans data/commande.txt
-  - /video     → flux Pi Camera MJPEG (rpicam-vid)
-  - /snapshot  → retourne le dernier frame (utilisé par pilote_robot.py)
-  - /carte     → sert data/lidar_map.png
-  - /lidar_log → stream sortie LiDAR en temps réel
-  - /reset     → stop Arduino + vide action.txt
-"""
+# =======================EN TÊTE=====================================
+# FICHIER: server_rpi.py
+# AUTEUR: BEN LTAIEF Yasmine
+# RÔLE: Serveur web Flask sur Raspberry Pi 3B
+# PRINCIPE:
+#   - /commande  → écrit dans data/commande.txt
+#   - /signal    → Flask appelle directement pilote_robot.py
+#   - /joystick  → envoie directement l'octet à l'Arduino
+#   - /audio     → STT → écrit dans data/commande.txt
+#   - /video     → flux Pi Camera MJPEG (rpicam-vid)
+#   - /snapshot  → retourne le dernier frame (utilisé par pilote_robot.py)
+#   - /carte     → sert data/lidar_map.png
+#   - /lidar_log → stream sortie LiDAR en temps réel
+#   - /reset     → stop Arduino + vide action.txt
+# ===================================================================
 
 import os
 import io

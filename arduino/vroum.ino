@@ -1,3 +1,8 @@
+/* FICHIER: vroum.ino
+*  AUTEUR: DEVAUD Antoine
+*  RÔLE: *à remplir*
+**/
+
 #include <AFMotor_R4.h>
 
 char commande;

@@ -1,3 +1,9 @@
+/* FICHIER: blutest.ino
+*  AUTEUR: DEVAUD Antoine
+*  RÔLE: Permet de tester le module Bluetooth en envoyant un caractère 
+*        depuis un téléphone et l'affiche dans le Serial Monitor 
+**/
+
 void setup() {
 
   Serial.begin(9600);    // PC

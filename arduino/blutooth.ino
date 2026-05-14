@@ -1,3 +1,8 @@
+/* FICHIER: blutooth.ino
+*  AUTEUR: DEVAUD Antoine
+*  RÔLE: Permet de piloter le robot (en actionnant les moteurs) grâce au module Bluetooth
+**/
+
 #include <AFMotor_R4.h>
 
 char commande;
@@ -45,10 +50,10 @@ void loop() {
     }
 
     if (commande == '4') {   // tourner à gauche
-  motor1.run(FORWARD);
-  motor2.run(BACKWARD);
-  motor3.run(BACKWARD);
-  motor4.run(FORWARD);
+      motor1.run(FORWARD);
+      motor2.run(BACKWARD);
+      motor3.run(BACKWARD);
+      motor4.run(FORWARD);
     }
 
     if (commande == '5') {   // tourner à droite

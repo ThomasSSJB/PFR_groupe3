@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-"""
-mode_auto.py
-Navigation LiDAR SIMPLE :
-- avance si devant libre
-- tourne vers le côté le plus libre sinon
 
-Commandes :
-1 = avance
-3 = stop
-4 = gauche
-5 = droite
-"""
+# =======================EN TÊTE=====================================
+# FICHIER: mode_auto.py
+# AUTEUR: BEN LTAIF Yasmine
+# RÔLE: Permet de lancer le mode automatique dit "aspirateur"
+# PRINCIPE:
+#   - avance si devant libre
+#   - tourner vers le côté le plus libre sinon
+# ===================================================================
 
 import serial
 import time

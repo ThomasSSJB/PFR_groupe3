@@ -1,3 +1,8 @@
+/* FICHIER: moteur4.ino
+*  AUTEUR: DEVAUD Antoine
+*  RÔLE: *à remplir*
+**/
+
 #include <AFMotor_R4.h>
 
 // Test 4 moteurs avec le Shield L293D & la librairie "AFMotor.h

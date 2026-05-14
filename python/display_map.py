@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-"""
-display_map.py — Cartographie LiDAR propre
 
-Version corrigée :
-- séparation murs / obstacles
-- conservation de la géométrie réelle
-- sauvegarde automatique dans data/lidar_map.png
-- parsing corrigé angle,distance
-- visualisation améliorée
-
-Usage :
-ssh pfr3@pfr3.local \
-"source ~/code/PFR_groupe3/venv/bin/activate && \
-python ~/code/PFR_groupe3/python/scan_lidar.py" \
-| python display_map.py
-"""
+# =======================EN TÊTE=====================================
+# FICHIER: display_map.py
+# AUTEUR: YAHYAOUI Nidal
+# RÔLE: Cartographie par LiDAR et création d'une image résultat
+# PRINCIPE:
+#   - séparation murs / obstacles
+#   - conservation de la géométrie réelle
+#   - sauvegarde automatique dans data/lidar_map.png
+#   - parsing corrigé angle,distance
+#   - visualisation améliorée
+# USAGE:
+#   ssh pfr3@pfr3.local \
+#   "source ~/code/PFR_groupe3/venv/bin/activate && \
+#   python ~/code/PFR_groupe3/python/scan_lidar.py" \
+#   | python display_map.py
+# ===================================================================
 
 import sys
 import os
@@ -23,11 +24,9 @@ import numpy as np
 import cv2
 import matplotlib
 
-<<<<<<< HEAD
+# Utiliser 'Agg' ou 'TkAgg' suivant l'OS
 matplotlib.use('Agg')
-=======
-matplotlib.use('TkAgg')
->>>>>>> a5247464 (ajout du lidar)
+# matplotlib.use('TkAgg')
 
 import matplotlib.pyplot as plt
 import matplotlib.patheffects as pe
@@ -435,8 +434,4 @@ plt.savefig(
 
 print(f"Carte sauvegardée : {SAVE_PATH}", file=sys.stderr)
 
-<<<<<<< HEAD
 plt.close()
-=======
-plt.show()
->>>>>>> a5247464 (ajout du lidar)

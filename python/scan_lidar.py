@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
 
+# =======================EN TÊTE=====================================
+# FICHIER: scan_lidar.py
+# AUTEURS: GRELET Thomas, YAHYAOUI Nidal
+# RÔLE: Permet de tester un scan par LiDAR et d'afficher dans le
+#       terminal la distance et l'angle des points
+# ===================================================================
+
 import sys
 import time
 from rplidar import RPLidar
