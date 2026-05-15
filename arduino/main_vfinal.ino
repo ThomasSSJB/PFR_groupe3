@@ -1,7 +1,7 @@
 /* FICHIER: main_vfinal.ino
 *  AUTEUR: DEVAUD Antoine
-*  RÔLE: *Firmware Arduino de contrôle d'un robot 4 roues,
-      pilotable en Bluetooth ou en mode autonome avec évitement d'obstacles par ultrasons.*
+*  RÔLE: Firmware Arduino de contrôle d'un robot 4 roues,
+      pilotable en Bluetooth ou en mode autonome avec évitement d'obstacles par ultrasons.
 **/
 
 #include <AFMotor_R4.h>
