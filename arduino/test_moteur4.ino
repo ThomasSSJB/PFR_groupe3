@@ -1,6 +1,6 @@
-/* FICHIER: moteur4.ino
+/* FICHIER: test_moteur4.ino
 *  AUTEUR: DEVAUD Antoine
-*  RÔLE: *à remplir*
+*  RÔLE: *Permet de tester les 4 moteurs du robot en pouvant les identifier et les contrôler individuellement*
 **/
 
 #include <AFMotor_R4.h>

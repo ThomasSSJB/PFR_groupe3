@@ -1,4 +1,4 @@
-/* FICHIER: blutest.ino
+/* FICHIER: test_bluetooth.ino
 *  AUTEUR: DEVAUD Antoine
 *  RÔLE: Permet de tester le module Bluetooth en envoyant un caractère 
 *        depuis un téléphone et l'affiche dans le Serial Monitor 

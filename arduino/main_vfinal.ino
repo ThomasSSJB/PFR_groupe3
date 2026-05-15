@@ -1,6 +1,7 @@
-/* FICHIER: robot_corrige_v31.ino
+/* FICHIER: main_vfinal.ino
 *  AUTEUR: DEVAUD Antoine
-*  RÔLE: *à remplir*
+*  RÔLE: *Firmware Arduino de contrôle d'un robot 4 roues,
+      pilotable en Bluetooth ou en mode autonome avec évitement d'obstacles par ultrasons.*
 **/
 
 #include <AFMotor_R4.h>
@@ -13,19 +14,20 @@
 
 #define INTERVALLE_SONAR 80
 
-// ─────────────────────── MACHINE D'ÉTATS ASPIRATEUR ──────────────
+// ─────────────────────── MACHINE D'ÉTATS AUTO ────────────────────
 enum EtatAuto { IDLE, AVANCE_AUTO, TOURNE_AUTO };
 EtatAuto etatAuto = IDLE;
 
-bool modeAspirateur  = false;
-bool tourneGauche    = true;          // alterne à chaque obstacle
-unsigned long debutVirage   = 0;
-unsigned long dureeVirage   = 0;      // calculée aléatoirement
+bool modeAuto             = false;
+unsigned long debutVirage = 0;
+
+const unsigned long DUREE_TOURNE  = 400;   // durée du virage (~30°), à ajuster
+const int           VITESSE_VIRAGE = 215;  // vitesse boostée pendant le virage
 
 // ─────────────────────── PARSING COMMANDE ────────────────────────
 String commandeBuffer = "";
 unsigned long dernierCaractere = 0;
-const unsigned long TIMEOUT_CMD = 50; // ms sans nouveau char = commande complète
+const unsigned long TIMEOUT_CMD = 50;
 
 char commande;
 long distanceFront = 100;
@@ -65,7 +67,6 @@ void setup() {
   pinMode(echoPinBack, INPUT);
   pinMode(klaxonPin,   OUTPUT);
 
-  randomSeed(analogRead(A0));   // pour varier les durées de virage
   appliquerVitesse();
   Serial.println("Robot pret");
 }
@@ -74,55 +75,59 @@ void setup() {
 void loop() {
   unsigned long maintenant = millis();
 
-  // -------- MODE ASPIRATEUR --------
-  if (modeAspirateur) {
-    gererAspirateur(maintenant);
+  // -------- MODE AUTO --------
+  if (modeAuto) {
+    gererAuto(maintenant);
   }
 
   // -------- AVANCE + RADAR AVANT --------
-  if (!modeAspirateur && (avance || radarAvant)) {
+  if (!modeAuto && (avance || radarAvant)) {
     if (maintenant - derniereSonarAvant >= INTERVALLE_SONAR) {
       mesurerDistanceAvant();
       derniereSonarAvant = maintenant;
     }
-    if (avance && distanceFront <= 50) {
+    if (avance && distanceFront <= 60) {
       stopRobot();
       avance = false; radarAvant = true; bipAvantEnCours = false;
       Serial.println("Obstacle devant - STOP radar actif");
     }
     radarBipAvant(distanceFront, maintenant);
-    if (radarAvant && !avance && distanceFront > 75) {
+    if (radarAvant && !avance && distanceFront > 65) {
       radarAvant = false; noTone(klaxonPin);
       Serial.println("Voie libre avant - radar off");
     }
   }
 
   // -------- RECUL + RADAR ARRIERE --------
-  if (!modeAspirateur && (recule || radarArriere)) {
+  if (!modeAuto && (recule || radarArriere)) {
     if (maintenant - derniereSonarArriere >= INTERVALLE_SONAR) {
       mesurerDistanceArriere();
       derniereSonarArriere = maintenant;
     }
-    if (recule && distanceBack <= 50) {
+    if (recule && distanceBack <= 60) {
       stopRobot();
       recule = false; radarArriere = true; bipEnCours = false;
       Serial.println("Obstacle derriere - STOP radar actif");
     }
     radarBipArriere(distanceBack, maintenant);
-    if (radarArriere && !recule && distanceBack > 75) {
+    if (radarArriere && !recule && distanceBack > 65) {
       radarArriere = false; noTone(klaxonPin);
       Serial.println("Voie libre arriere - radar off");
     }
   }
 
   // -------- PARSING COMMANDE BLUETOOTH --------
+    while (Serial.available()) {
+    char c = Serial.read();
+    commandeBuffer += c;
+    dernierCaractere = maintenant;
+}
   while (Serial1.available()) {
     char c = Serial1.read();
     commandeBuffer += c;
     dernierCaractere = maintenant;
   }
 
-  // Commande complète = plus de char depuis TIMEOUT_CMD ms
   if (commandeBuffer.length() > 0 && (maintenant - dernierCaractere >= TIMEOUT_CMD)) {
     int cmd = commandeBuffer.toInt();
     Serial.print("CMD : "); Serial.println(cmd);
@@ -131,10 +136,9 @@ void loop() {
   }
 }
 
-// ─────────────────────── ASPIRATEUR ──────────────────────────────
-void gererAspirateur(unsigned long maintenant) {
+// ─────────────────────── MODE AUTO ───────────────────────────────
+void gererAuto(unsigned long maintenant) {
 
-  // Mesure sonar avant en continu
   if (maintenant - derniereSonarAvant >= INTERVALLE_SONAR) {
     mesurerDistanceAvant();
     derniereSonarAvant = maintenant;
@@ -143,26 +147,27 @@ void gererAspirateur(unsigned long maintenant) {
   switch (etatAuto) {
 
     case AVANCE_AUTO:
-      if (distanceFront <= 50) {
+      if (distanceFront <= 60) {
+        // Mur détecté : stop puis virage boosté
         stopRobot();
-        // Bip bref pour signaler l'obstacle
-        tone(klaxonPin, 800); delay(60); noTone(klaxonPin);
+        Serial.println("Mur detecte -> virage");
 
-        // Virage aléatoire entre 400 et 900ms
-        dureeVirage = random(400, 900);
+        // Boost vitesse pour le virage
+        motorAD.setSpeed(VITESSE_VIRAGE);
+        motorAG.setSpeed(VITESSE_VIRAGE);
+        motorDG.setSpeed(VITESSE_VIRAGE);
+        motorDD.setSpeed(VITESSE_VIRAGE);
+
+        gauche();
         debutVirage = maintenant;
-
-        if (tourneGauche) gauche(); else droite();
-        tourneGauche = !tourneGauche;   // alterne
-
-        etatAuto = TOURNE_AUTO;
-        Serial.print("Obstacle -> virage ");
-        Serial.print(dureeVirage); Serial.println("ms");
+        etatAuto    = TOURNE_AUTO;
       }
       break;
 
     case TOURNE_AUTO:
-      if (maintenant - debutVirage >= dureeVirage) {
+      if (maintenant - debutVirage >= DUREE_TOURNE) {
+        // Virage terminé : restaure vitesse normale et repart
+        appliquerVitesse();
         avancer();
         etatAuto = AVANCE_AUTO;
         Serial.println("Virage fini -> avance");
@@ -175,32 +180,31 @@ void gererAspirateur(unsigned long maintenant) {
   }
 }
 
-void activerAspirateur() {
-  modeAspirateur = true;
-  etatAuto       = AVANCE_AUTO;
+void activerAuto(unsigned long maintenant) {
+  modeAuto  = true;
+  etatAuto  = AVANCE_AUTO;
   avance = false; recule = false; radarAvant = false; radarArriere = false;
   bipAvantEnCours = false; bipEnCours = false;
   noTone(klaxonPin);
+  appliquerVitesse();
   avancer();
-  Serial.println("Mode aspirateur ON");
+  Serial.println("Mode auto ON");
 }
 
-void stopAspirateur() {
-  modeAspirateur = false;
-  etatAuto       = IDLE;
+void stopAuto() {
+  modeAuto = false;
+  etatAuto = IDLE;
+  appliquerVitesse();
   stopRobot();
   noTone(klaxonPin);
-  Serial.println("Mode aspirateur OFF");
+  Serial.println("Mode auto OFF");
 }
 
 // ─────────────────────── TRAITEMENT COMMANDES ────────────────────
 void traiterCommande(int cmd, unsigned long maintenant) {
 
-  // Commande stop aspirateur en priorité
-  if (cmd == 3 && modeAspirateur) { stopAspirateur(); return; }
-
-  // En mode aspirateur, seul le stop (3) est écouté
-  if (modeAspirateur) return;
+  if (cmd == 3 && modeAuto) { stopAuto(); return; }
+  if (modeAuto) return;
 
   switch (cmd) {
 
@@ -250,7 +254,7 @@ void traiterCommande(int cmd, unsigned long maintenant) {
       tone(klaxonPin, 900); delay(100); noTone(klaxonPin); break;
 
     case 10:
-      activerAspirateur(); break;
+      activerAuto(maintenant); break;
   }
 }
 
