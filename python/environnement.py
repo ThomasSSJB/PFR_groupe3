@@ -1,3 +1,10 @@
+# =======================EN TÊTE=====================================
+# FICHIER: environnement.py
+# AUTEURS: BACHAA Hajar, DEVAUD Antoine
+# RÔLE: Création et gestion de l'environnement du robot,
+#       y compris les pièces, ouvertures, obstacles,
+# ===================================================================
+
 import turtle as tl
 
 # 1. GESTION DE L'ENVIRONNEMENT (OUVERTURES & OBSTACLES)

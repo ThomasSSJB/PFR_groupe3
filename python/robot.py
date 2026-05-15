@@ -1,8 +1,17 @@
+# =======================EN TÊTE=====================================
+# FICHIER: robot.py
+# AUTEURS: BACHAA Hajar, DEVAUD Antoine
+# RÔLE: Définition de la classe Robot
+#       Gère les mouvements, l'affichage graphique et
+#       l'interaction multilingue du robot.
+# ===================================================================
+
+
 import turtle
 import math
 
 class Robot:
-
+	"""Initialisation du robot avec sa position, sa couleur et son orientation."""
 	def __init__(self, start_x=0, start_y=0, initial_heading=0, couleur="blue", vitesse=1):
 
 		#initialisation de la tortue

@@ -16,7 +16,7 @@
 #define OUT_FILE   "data/action.txt"
 
 /* Valeurs par défaut si aucun paramètre n’est précisé */
-#define DEFAULT_DISTANCE 50
+#define DEFAULT_DISTANCE 1
 #define DEFAULT_ANGLE    90
 
 /* Tailles maximales */

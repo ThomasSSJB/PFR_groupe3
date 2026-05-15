@@ -1,3 +1,10 @@
+# =======================EN TÊTE=====================================
+# FICHIER: simulation.py
+# AUTEURS:DEVAUD Antoine, YAHYAOUI Nidal
+# RÔLE: Simulation de l'environnement du robot,
+#       y compris la gestion des actions et des mouvements.
+# ===================================================================
+
 import turtle
 import time
 import os
